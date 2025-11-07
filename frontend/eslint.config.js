@@ -21,13 +21,10 @@ export default defineEslintConfig({
     ecmaVersion: 2020,
     globals: globals.browser,
 
-    // 配置 TypeScript 解析器
-    parser: tseslint.parser, 
     parserOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
       ecmaFeatures: { jsx: true },
-      project: './tsconfig.json', 
     },
   },
 

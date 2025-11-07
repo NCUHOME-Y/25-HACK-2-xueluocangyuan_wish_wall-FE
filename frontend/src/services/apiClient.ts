@@ -6,7 +6,7 @@ import axios, {
 // 假设用户数据存储在 userStore.ts 中
 import { useUserStore } from "../store/userStore";
 // 设置基础 URL（从 Apifox 获取）
-const API_BASE_URL: string = "https://mock.apifox.cn/m1/your-project-id";
+const API_BASE_URL: string = "http://127.0.0.1:4523/m1/7353183-7083985-default/api";
 
 // 创建 axios 实例
 const apiClient: AxiosInstance = axios.create({
