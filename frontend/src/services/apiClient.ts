@@ -24,12 +24,7 @@ apiClient.interceptors.request.use(
 
         // 如果 token 存在，就把它添加到每个请求的 Header 中
         if (token) {
-            const headers: any = config.headers as any;
-            if (typeof headers?.set === "function") {
-                headers.set("Authorization", `Bearer ${token}`);
-            } else {
-                headers["Authorization"] = `Bearer ${token}`;
-            }
+            config.headers.set("Authorization", `Bearer ${token}`);
         }
 
         return config; // 放行请求
@@ -62,11 +57,11 @@ apiClient.interceptors.response.use(
             // 统一处理 401 Token 失效 
             if (error.response.status === 401) {
                 // 在这里执行“强制跳转到登录页”的逻辑
-                // window.location.href = '/login'; 
                 // 简单清理本地 token，避免后续请求继续携带无效凭证
                 try { localStorage.removeItem("token"); } catch {}
-                try { (useUserStore as any)?.getState?.()?.logout?.(); } catch {}
+                try { useUserStore .getState().logout(); } catch {}
                 console.error("Token 失效或未认证，请重新登录");
+                window.location.href = '/login'; 
             }
         }
         return Promise.reject(error);

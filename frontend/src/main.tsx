@@ -4,7 +4,7 @@ import { RouterProvider } from 'react-router-dom';
 // 导入配置好的 router
 import router from './router/index';
 
-// 2导入全局样式
+// 导入全局样式
 import './styles/main.css';
 
 //  启动应用
