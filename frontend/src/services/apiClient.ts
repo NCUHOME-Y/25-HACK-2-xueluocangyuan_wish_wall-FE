@@ -3,15 +3,13 @@ import axios, {
     type InternalAxiosRequestConfig,
     type AxiosResponse,
 } from "axios";
-// 假设用户数据存储在 userStore.ts 中
 import { useUserStore } from "../store/userStore";
 // 设置基础 URL（从 Apifox 获取）
-const API_BASE_URL: string = "http://127.0.0.1:4523/m1/7353183-7083985-default/api";
-
+const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL;
 // 创建 axios 实例
 const apiClient: AxiosInstance = axios.create({
     baseURL: API_BASE_URL,
-    timeout: 5000, // 5 秒超时
+    timeout: 10000, // 10 秒超时
     headers: {
         "Content-Type": "application/json",
     },
@@ -20,12 +18,18 @@ const apiClient: AxiosInstance = axios.create({
 // 设置请求拦截器（自动附加 Token）
 apiClient.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-        // 从全局 store  中获取 token
-        const token = useUserStore.getState().token;
+    // 优先从全局 store 获取 token，不存在再回退到 localStorage
+    const storeToken = (useUserStore as any)?.getState?.()?.token as string | null | undefined;
+    const token = storeToken ?? localStorage.getItem("token");
 
         // 如果 token 存在，就把它添加到每个请求的 Header 中
         if (token) {
-            config.headers.set("Authorization", `Bearer ${token}`);
+            const headers: any = config.headers as any;
+            if (typeof headers?.set === "function") {
+                headers.set("Authorization", `Bearer ${token}`);
+            } else {
+                headers["Authorization"] = `Bearer ${token}`;
+            }
         }
 
         return config; // 放行请求
@@ -37,7 +41,7 @@ apiClient.interceptors.request.use(
 
 // 设置响应拦截器（统一处理错误和响应）
 apiClient.interceptors.response.use(
-    (response: AxiosResponse) => {
+    (response: AxiosResponse): any => {
         const res = response.data;
 
         // 统一处理业务错误
@@ -49,8 +53,8 @@ apiClient.interceptors.response.use(
             return Promise.reject(new Error(res.msg || "Error"));
         }
 
-        // 如果业务成功，返回完整的 response
-        return response;
+        // 如果业务成功，只返回业务数据 data
+        return res.data;
     },
     (error) => {
         // 统一处理 HTTP 错误
@@ -59,6 +63,9 @@ apiClient.interceptors.response.use(
             if (error.response.status === 401) {
                 // 在这里执行“强制跳转到登录页”的逻辑
                 // window.location.href = '/login'; 
+                // 简单清理本地 token，避免后续请求继续携带无效凭证
+                try { localStorage.removeItem("token"); } catch {}
+                try { (useUserStore as any)?.getState?.()?.logout?.(); } catch {}
                 console.error("Token 失效或未认证，请重新登录");
             }
         }
