@@ -48,8 +48,8 @@ apiClient.interceptors.response.use(
             return Promise.reject(new Error(res.msg || "Error"));
         }
 
-        // 如果业务成功，只返回业务数据 data
-        return res.data;
+        // 如果业务成功，返回完整业务响应对象（包含 code, data, msg）
+        return res;
     },
     (error) => {
         // 统一处理 HTTP 错误
