@@ -47,9 +47,7 @@ apiClient.interceptors.response.use(
             // 拒绝 Promise，让调用方可以 .catch()
             return Promise.reject(new Error(res.msg || "Error"));
         }
-
-        // 如果业务成功，只返回业务数据 data
-        return res.data;
+        return res;
     },
     (error) => {
         // 统一处理 HTTP 错误

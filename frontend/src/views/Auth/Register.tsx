@@ -24,7 +24,7 @@ export const Register = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await authService.login({ username, password });
+      const res = await authService.register({ username, password });
       if (res.code === 200) {
         const { token, user } = res.data;
         setToken(token);
