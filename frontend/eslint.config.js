@@ -1,29 +1,41 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import { defineConfig, globalIgnores } from 'eslint/config'
+import js from '@eslint/js';
+import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import tseslint from 'typescript-eslint';
 
-export default defineConfig([
-  globalIgnores(['dist']),
+// ESLint 9+ Flat Config
+export default tseslint.config(
+  // 1) 全局忽略
+  { ignores: ['dist'] },
+
+  // 2) JS/TS 基础推荐
+  js.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  reactHooks.configs['recommended-latest'],
+  reactRefresh.configs.vite,
+
+  // 3) 项目级配置
   {
-    files: ['**/*.{js,jsx}'],
-    extends: [
-      js.configs.recommended,
-      reactHooks.configs['recommended-latest'],
-      reactRefresh.configs.vite,
-    ],
+    files: ['**/*.{ts,tsx}'],
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 'latest',
+      sourceType: 'module',
       globals: globals.browser,
       parserOptions: {
-        ecmaVersion: 'latest',
+        // 启用类型感知规则（自动查找 tsconfig）
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
         ecmaFeatures: { jsx: true },
-        sourceType: 'module',
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // 交由 @typescript-eslint 处理未使用变量
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^[A-Z_]' }
+      ],
     },
-  },
-])
+  }
+);
