@@ -1,12 +1,15 @@
-import {useState} from 'react';
+import  React, {useState} from 'react';
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from '@/store/userStore';
 import { authService } from '@/services/authService';
+import Button from '@/components/common/Button';
 
 export const Register = () => {
   const [username, setUsername] = useState("");
+  const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
-  const [ loading,setLoading]= useState<boolean>(false);
+  const [loading,setLoading]= useState<boolean>(false);
+  const [success,setSuccess]= useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
  
@@ -31,6 +34,7 @@ export const Register = () => {
         setUser(user);
         setPassword(''); // 清理敏感数据
         navigate('/');   // 注册即登录
+        setSuccess(true);
       } else {
         setError(res.msg || '注册失败');
       }
@@ -42,7 +46,61 @@ export const Register = () => {
   };
 
   return (
-  //曾 交给你了
+     <div className="register-container">
+            <div className="register-title">创建账户</div>
+            <div className="nickname">
+                昵称：
+                <input
+                    type="text"
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                    disabled={loading || success}
+                />
+            </div>
+            <div className="username">
+                学号：
+                <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    disabled={loading || success}
+                />
+            </div>
+            <div className="password">
+                密码：
+                <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading || success}
+                />
+            </div>
+            
+            <div className="register-button-container">
+              {loading && (
+                <img src=""
+                     alt="加载中..."
+                     className="loading-img-spin"
+                />
+              )}
+
+              {!loading && !success && (
+                <Button 
+                    onClick={handleSubmit} 
+                    text="注册"
+                    disabled={!username || !password || !nickname}
+                />
+              )}
+            </div>
+
+                {error && (
+                    <div className="error-message">
+                      {error}
+                    </div>
+                )}
+
+                <div className="register-notice">已有账号？<a href="/login">立即登录</a></div>
+        </div>
   );
 };
 
