@@ -4,6 +4,7 @@ import apiClient from "./apiClient";
 export interface AuthCredentials {
     username: string;
     password: string;
+    nickname?: string; //注册时需要昵称，登录时不需要
 }
 //登录注册成功后，data返回的数据
 interface AuthData{
