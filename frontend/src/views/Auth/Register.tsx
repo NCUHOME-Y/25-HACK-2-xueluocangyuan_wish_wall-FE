@@ -1,5 +1,5 @@
-import  React, {useState} from 'react';
-import { useNavigate } from "react-router-dom";
+import  React, { useState } from 'react';
+import { useNavigate, Link } from "react-router-dom";
 import { useUserStore } from '@/store/userStore';
 import { authService } from '@/services/authService';
 import Button from '@/components/common/Button';
@@ -8,8 +8,8 @@ export const Register = () => {
   const [username, setUsername] = useState("");
   const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
-  const [loading,setLoading]= useState<boolean>(false);
-  const [success,setSuccess]= useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
  
@@ -99,7 +99,7 @@ export const Register = () => {
                     </div>
                 )}
 
-                <div className="register-notice">已有账号？<a href="/login">立即登录</a></div>
+                <div className="register-notice">已有账号？<Link to="/login">立即登录</Link></div>
         </div>
   );
 };

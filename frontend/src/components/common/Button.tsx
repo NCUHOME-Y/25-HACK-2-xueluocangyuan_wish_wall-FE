@@ -1,4 +1,4 @@
-import React from'react';
+import React from 'react';
 
 // 继承原生button属性并添加icon, text属性
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -12,7 +12,7 @@ const Button = ({
     className,
     ...rest
 }: ButtonProps) => {
-    const isIconOnly =!text && !!icon;// 判断是否为纯图标按钮
+    const isIconOnly = !text && !!icon;// 判断是否为纯图标按钮
 
     const iconContent = typeof icon === 'string' 
         ? <img src={icon} alt="icon" className="icon-image" />

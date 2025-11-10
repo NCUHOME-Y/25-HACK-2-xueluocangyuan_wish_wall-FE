@@ -1,4 +1,4 @@
-import React, { useEffect }  from'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import Button from './Button.tsx';
 
@@ -39,35 +39,29 @@ const Modal = ({
         };
     }, []);
 
-    if (!visible || !mounted) {
+    if (!mounted) {
         return null;
-    }// 防止服务器端渲染时报错
+    } // 防止服务器端渲染时报错
 
     // 确定挂载的DOM节点
-    const  portalRoot = document.getElementById('modal-root') || document.body;
+    const portalRoot = document.getElementById('modal-root') || document.body;
 
-    return ReactDOM.createPortal (
+    return ReactDOM.createPortal(
         <div className="modal-overlay">
-            <div className="modal" >
+            <div className="modal">
                 <div className="modal-header">
                     {title && (
                     <h1 className="modal-title">{title}</h1>
                     )}
-                    <Button className="modal-close" onClick={onClose}>
-                        &times;
-                        </Button>
+                    <Button className="modal-close" onClick={onClose} icon="@/assets/images/closeButton.svg" />
                 </div>
                 <div className="modal-body">{children}</div>
                 <div className="modal-footer">
                     {onConfirm && (
-                    <Button className="modal-confirm" onClick={onConfirm}>
-                        {confirmText}
-                        </Button>
+                    <Button className="modal-confirm" onClick={onConfirm} text={confirmText} />
                     )}
                     {showCancelButton && (
-                    <Button className="modal-cancel" onClick={onCancel}>
-                        {cancelText}
-                        </Button>
+                    <Button className="modal-cancel" onClick={onCancel} text={cancelText} />
                         )}
                 </div>
             </div>

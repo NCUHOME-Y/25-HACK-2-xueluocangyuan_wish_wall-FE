@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import { useUserStore } from "@/store/userStore";
-import{ Navigate,Outlet} from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 // 根框架组件
 import App from "../App";
 
@@ -10,13 +10,13 @@ import Register from "../views/Auth/Register";
 import PublicFeed from "../views/PublicFeed/PublicFeed";
 import Galaxy from "../views/Galaxy/Galaxy";
 import Profile from "../views/Profile/Profile";
-//创建路由守卫
+// 创建路由守卫
 const ProtectedRoutes = () => {
   const token = useUserStore((state) => state.token);
- if (!token) {
+  if (!token) {
     // 如果没有 token，重定向到登录页面
     return <Navigate to="/login" replace />;
-  }//如果有token，渲染路由组件
+  }// 如果有token，渲染路由组件
   return <Outlet />;
 };
 
@@ -42,7 +42,7 @@ const router = createBrowserRouter([
           { index: true, element: <PublicFeed /> },
           { path: "publicfeed", element: <PublicFeed /> },
           { path: "galaxy", element: <Galaxy /> },
-          { path: "profile", element: <Profile /> },
+          { path: "profile", element: <Profile profileImage="" nickName="" /> },
         ],
       },
     ],

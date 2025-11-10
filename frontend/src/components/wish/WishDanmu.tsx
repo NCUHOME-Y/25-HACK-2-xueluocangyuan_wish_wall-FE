@@ -1,4 +1,4 @@
-import { useRef, useState, useLayoutEffect, useCallback } from'react';
+import { useRef, useState, useLayoutEffect, useCallback } from 'react';
 import { 
     motion,
     useMotionValue, 
@@ -94,7 +94,7 @@ const WishDamaku = ({
                     alignItems: 'center',
                     gap: '20px'
                 }}>
-                <motion.img src={imageUrl} className="wish-damaku-image" style={{ flexShrink: 0 }} />
+                <motion.img src={imageUrl} className="wish-damaku-image" alt="雪花" style={{ flexShrink: 0 }} />
                 <motion.span className="wish-damaku-text" style={textStyle} ref={textRef}>
                     {totalText}
                 </motion.span>

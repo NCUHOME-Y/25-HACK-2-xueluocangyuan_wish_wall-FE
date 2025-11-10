@@ -26,27 +26,27 @@ const WishCard = ({
             <div className="wish-text">{wishText}</div>
             {onLike && <div className="like-button-container">
                 <Button
-            onClick={onLike}
-            className="like-button"
-            text=""
-            icon
+                    onClick={onLike}
+                    className="like-button"
+                    text=""
+                    icon
                 />
-                </div>}
+            </div>}
             {onComment && <div className="comment-button-container">
                 <Button 
-            onClick={onComment}
-            className="comment-button"
-            text=""
-            icon
-            />
-                </div>}
+                    onClick={onComment}
+                    className="comment-button"
+                    text=""
+                    icon
+                />
+            </div>}
             {onDelete && <div className="delete-button-container">
                 <Button 
-            onClick={onDelete}
-            className="delete-button"
-            text="删除"
-        />
-                </div>}
+                    onClick={onDelete}
+                    className="delete-button"
+                    text="删除"
+                />
+            </div>}
         </div>
     );
 };

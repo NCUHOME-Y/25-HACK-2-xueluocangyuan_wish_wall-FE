@@ -1,15 +1,15 @@
 
-import  React, {useState} from 'react';
-import {authService} from '@/services/authService';
-import { useNavigate } from "react-router-dom";
+import  React, { useState } from 'react';
+import { authService } from '@/services/authService';
+import { useNavigate, Link } from "react-router-dom";
 import { useUserStore } from '@/store/userStore';
 import Button from '@/components/common/Button';
 
 export const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loading,setLoading] = useState<boolean>(false);
-  const [success,setSuccess]= useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [success, setSuccess]= useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
  
@@ -104,7 +104,7 @@ export const Login = () => {
       )}
 
       <div className="login-note">
-        没有账号？<a href="/register">立即注册</a>
+        没有账号？<Link to="/register">立即注册</Link>
       </div>
     </div>
   );
