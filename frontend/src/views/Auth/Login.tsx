@@ -1,13 +1,15 @@
 
-import {useState} from 'react';
-import {authService} from '@/services/authService';
-import { useNavigate } from "react-router-dom";
+import  React, { useState } from 'react';
+import { authService } from '@/services/authService';
+import { useNavigate, Link } from "react-router-dom";
 import { useUserStore } from '@/store/userStore';
+import Button from '@/components/common/Button';
 
 export const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [ loading,setLoading]= useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [success, setSuccess]= useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
  
@@ -32,6 +34,7 @@ export const Login = () => {
         setUser(user);
         setPassword(''); // 清理敏感数据
         navigate('/');   // 登录后跳转
+        setSuccess(true);
       } else {
         setError(res.msg || '登录失败');
       }
@@ -43,7 +46,68 @@ export const Login = () => {
   };
 
   return (
-    //曾，页面样式就交给你了，页面跳转可以看看我的router，
+    <div className="login-container">
+      <div className="login-title">欢迎来到雪落藏愿</div>
+      
+      <div className="username-input-container">
+        账号：
+        <input
+          type="text"
+          value={username}
+          placeholder="请输入账号/学号"
+          onChange={(e) => setUsername(e.target.value)}
+          disabled={loading || success}
+        />
+      </div>
+
+      <div className="password-input-container">
+        密码：
+        <input
+          type="password"
+          value={password}
+          placeholder="请输入密码"
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={loading || success}
+        />
+      </div>
+
+       <div className="login-button-container">
+        {loading && (
+          <img 
+            src="/path/to/loading...0%.png" 
+            alt="加载中" 
+            className="loading-image spin"
+          />
+        )}
+        
+        {success && (
+          <img 
+            src="/path/to/loading...100%.png" 
+            alt="加载成功" 
+            className="loading-image success"
+          />
+        )}
+
+        {!loading && !success && (
+          <Button 
+            text="登录"
+            className="login-button" 
+            onClick={handleSubmit}
+          />
+        )}
+      </div>
+
+      {error && (
+        <div className="error-message">
+          {error}
+        </div>
+      )}
+
+      <div className="login-note">
+        没有账号？<Link to="/register">立即注册</Link>
+      </div>
+    </div>
   );
 };
+
 export default Login;
