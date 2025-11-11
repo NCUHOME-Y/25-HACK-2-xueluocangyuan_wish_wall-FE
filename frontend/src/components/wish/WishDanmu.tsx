@@ -1,105 +1,112 @@
-import { useRef, useState, useLayoutEffect, useCallback } from 'react';
-import { 
-    motion,
-    useMotionValue, 
-    useTransform, 
-    useSpring, 
-    useAnimationFrame, 
-    useVelocity,
-    useScroll
-} from 'framer-motion';
-import { wrap } from '@motionone/utils';
+// 导入必要的模块 
+import { useRef, useEffect, useState } from 'react';
+import snowflakeImg from '@/assets/images/雪花.svg';
 
-interface WishDamakuProps {
-    imageUrl: string;
+// 定义单条弹幕的数据结构 
+export interface DamakuData {
+    id: number | string;
     wishContent: string;
-    baseVelocity: number;
 }
 
+interface WishDamakuProps {
+    data: DamakuData;
+    baseVelocity?: number;
+    onDamakuClick: (fullText: string) => void;
+}
+
+const MAX_CHARS = 10; // 最大显示字数
+
 const WishDamaku = ({
-    imageUrl,
-    wishContent,
-    baseVelocity = -1
+    data,
+    baseVelocity = -50,
+    onDamakuClick
 }: WishDamakuProps) => {
-    const baseX = useMotionValue(0);
-    const {scrollY} = useScroll();
-    const scrollVelocity = useVelocity(scrollY);
-    const smoothVelocity = useSpring(scrollVelocity, {
-        damping: 50,
-        stiffness: 400
-    });
-    const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 2], {
-        clamp: true
-    });
+    const { wishContent } = data;
+    const displayContent = wishContent.length > MAX_CHARS
+        ? wishContent.substring(0, MAX_CHARS) + '...'
+        : wishContent;
 
-    const textRef = useRef<HTMLSpanElement>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [totalText, setTotalText] = useState<string>(wishContent);
-    const [wrapRange, setWrapRange] = useState<number[]>([-100, 0]);
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const [offset, setOffset] = useState(0);
+    const [itemWidth, setItemWidth] = useState(0);
+    const [repeatCount, setRepeatCount] = useState(3); // 默认重复 3 次
 
-    const x = useTransform(baseX, (v) => `${wrap(wrapRange[0], wrapRange[1], v)}%`);
-
-    const calculateRepeatText = useCallback(() => {
-        // 检查元素是否存在
-        if (!textRef.current) return;
-
-        // 检查元素是否可见
-        const rect = textRef.current.getBoundingClientRect();
-        if (rect.width === 0) return;
-
-        const textWidth = rect.width;
-        const containerWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
-        const repeatCount = Math.ceil(containerWidth / textWidth) + 2;
-
-        const repeatText = Array(repeatCount).fill(wishContent).join('   ');
-        setTotalText(repeatText);
-
-        const totalWidth = repeatCount * textWidth;
-        setWrapRange([-totalWidth, 0]);
-    }, [wishContent]);
-
-    useLayoutEffect(() => {
-        calculateRepeatText();
-        window.addEventListener('resize', calculateRepeatText);
-
-        return () => window.removeEventListener('resize', calculateRepeatText);
-    }, [calculateRepeatText]);
-
-    const directionFactor = useRef<number>(1);
-    useAnimationFrame((_, delta) => {
-        let moveBy = directionFactor.current * baseVelocity * (delta / 1000);
-
-        const currentVelocityFactor = velocityFactor.get();
-
-        if (currentVelocityFactor < 0) {
-            directionFactor.current = -1;
-        } else if (currentVelocityFactor > 0) {
-            directionFactor.current = 1;
+    // 计算单个弹幕项的宽度并计算需要的重复次数
+    useEffect(() => {
+        if (scrollRef.current && scrollRef.current.children[0]) {
+            const width = (scrollRef.current.children[0] as HTMLElement).offsetWidth;
+            setItemWidth(width);
+            
+            // 计算屏幕宽度需要多少个弹幕项来填满 + 1个额外的用于循环
+            const screenWidth = window.innerWidth;
+            const needed = Math.ceil(screenWidth / width) + 2;
+            setRepeatCount(needed);
+            
+            console.log('弹幕宽度计算:', { itemWidth: width, screenWidth, needed });
         }
+    }, [displayContent]); // 当文本改变时重新计算
 
-        moveBy *= (1 + Math.abs(currentVelocityFactor)*0.1);
+    // 动画循环
+    useEffect(() => {
+        if (itemWidth === 0 || repeatCount === 0) return;
 
-        baseX.set(baseX.get() + moveBy);
-    });
+        let animationId: number;
+        let currentOffset = 0;
 
-    const textStyle = {whiteSpace: 'nowrap'};
+        const animate = () => {
+            currentOffset += baseVelocity / 60; // 60fps 动画
+            
+            // 无限循环
+            if (currentOffset < -itemWidth) {
+                currentOffset += itemWidth;
+            }
+            if (currentOffset > 0) {
+                currentOffset -= itemWidth;
+            }
+
+            setOffset(currentOffset);
+            animationId = requestAnimationFrame(animate);
+        };
+
+        animationId = requestAnimationFrame(animate);
+
+        return () => cancelAnimationFrame(animationId);
+    }, [itemWidth, baseVelocity, repeatCount]);
+
+    const handleDamakuClick = () => {
+        onDamakuClick(wishContent);
+    };
 
     return (
-        <div className="wish-damaku-container" ref={containerRef}>
-            <motion.div 
-                className="scroll" 
+        <div className="wish-damaku-container" onClick={handleDamakuClick}> 
+            <div
+                className="scroll-content"
+                ref={scrollRef}
                 style={{
-                    x,
-                    display: 'flex',
+                    display: 'flex', 
                     alignItems: 'center',
-                    gap: '20px'
-                }}>
-                <motion.img src={imageUrl} className="wish-damaku-image" alt="雪花" style={{ flexShrink: 0 }} />
-                <motion.span className="wish-damaku-text" style={textStyle} ref={textRef}>
-                    {totalText}
-                </motion.span>
-            </motion.div>
-
+                    whiteSpace: 'nowrap',
+                    cursor: 'pointer',
+                    transform: `translateX(${offset}px)`,
+                    transition: 'none',
+                }}
+            >
+                {/* 渲染足够多的弹幕项来填满屏幕 */}
+                {Array.from({ length: repeatCount }).map((_, index) => (
+                    <div key={index} className="damaku-item-wrapper">
+                        {/* 1. 雪花图片 */}
+                        <img 
+                            src={snowflakeImg} 
+                            alt="snowflake" 
+                            className="snowflake-icon" 
+                        />
+                        {/* 2. 文本内容 */}
+                        <span className="damaku-text-bubble">
+                            {displayContent}
+                        </span>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
