@@ -7,7 +7,7 @@ export const Galaxy = () => {
   const [wishes, setWishes] = useState<Wish[]>([]);
   // 增加 loading 和 error 状态
   const [page, setPage] = useState<number>(1);
-  const [Loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState<boolean>(true);
   // 页面加载时调用 getMyWishes
