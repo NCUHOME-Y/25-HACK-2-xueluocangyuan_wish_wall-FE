@@ -38,7 +38,9 @@ export const Galaxy = () => {
   }, [page]);
   //下面就交给你了，你看看我上面的const，看看哪些需要，哪些不需要
   //我还没有搞循环滑动，现在只有一个hasMore判断是否还有数据，因为我们的判断是用户快滑动到下一页才读取数据
-    return (
+  //我忘记设置处理点赞数，评论的变量了。这一部分我没有处理
+  //这好像是后面的工作 
+  return (
       <div className="galaxy-container">
         {wishes.map((wish) => (
           <div key={wish.id} className="wish-item">
@@ -47,4 +49,5 @@ export const Galaxy = () => {
         ))}
       </div>
     );
-}
+};
+export default Galaxy;
