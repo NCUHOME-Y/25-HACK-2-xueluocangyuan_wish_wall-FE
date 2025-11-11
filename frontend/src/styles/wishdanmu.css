@@ -1,4 +1,4 @@
-.damaku-flow-container {
+.danmu-flow-container {
     width: 100%; 
     position: relative;
     overflow: hidden;
@@ -7,7 +7,7 @@
     flex-direction: column;
 }
 
-.wish-damaku-container {
+.wish-danmu-container {
     position: relative;
     width: 100%;
     height: 100%;
@@ -19,10 +19,11 @@
 .scroll-content {
     display: inline-flex;
     align-items: center;
+    will-change: transform;
 }
 
 /* 单个完整的弹幕项 (雪花 + 文本气泡) */
-.damaku-item-wrapper {
+.danmu-item-wrapper {
     display: flex;
     align-items: center; /* 确保雪花和文本垂直居中 */
     margin-right: 40px; /* 控制相邻弹幕项之间的间隔 */
@@ -39,7 +40,7 @@
 }
 
 /* 文本气泡样式  */
-.damaku-text-bubble {
+.danmu-text-bubble {
     background-color: rgba(240, 251, 252, 0.8); 
     color: #004d40; 
     padding: 4px 12px;
@@ -51,7 +52,7 @@
     white-space: nowrap; 
 }
 
-.damaku-row {
+.danmu-row {
     width: 100%;
     height: 40px;
     display: flex;
@@ -59,7 +60,7 @@
     flex-shrink: 0;
 }
 
-.damaku-area {
+.danmu-area {
     width: 100%;
     flex: 1;
     position: relative;
