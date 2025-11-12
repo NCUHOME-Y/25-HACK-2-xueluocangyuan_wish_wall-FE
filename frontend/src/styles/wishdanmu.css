@@ -1,0 +1,72 @@
+.danmu-flow-container {
+    width: 100%; 
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.wish-danmu-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.scroll-content {
+    display: inline-flex;
+    align-items: center;
+    will-change: transform;
+}
+
+/* 单个完整的弹幕项 (雪花 + 文本气泡) */
+.danmu-item-wrapper {
+    display: flex;
+    align-items: center; /* 确保雪花和文本垂直居中 */
+    margin-right: 40px; /* 控制相邻弹幕项之间的间隔 */
+    /* 必须设置 flex-shrink: 0 防止被压缩 */
+    flex-shrink: 0; 
+}
+
+/* 雪花图片样式 */
+.snowflake-icon {
+    width: 20px; /* 调整雪花图片大小 */
+    height: 20px;
+    object-fit: contain;
+    margin-right: 8px; /* 雪花和文本气泡之间的间隔 */
+}
+
+/* 文本气泡样式  */
+.danmu-text-bubble {
+    background-color: rgba(240, 251, 252, 0.8); 
+    color: #004d40; 
+    padding: 4px 12px;
+    border-radius: 8px; 
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    /* 确保文本本身不换行  */
+    white-space: nowrap; 
+}
+
+.danmu-row {
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.danmu-area {
+    width: 100%;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px 0;
+}
