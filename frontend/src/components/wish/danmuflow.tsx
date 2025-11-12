@@ -72,8 +72,9 @@ const DanmuFlow: React.FC = () => {
             <Modal
                 visible={isModalOpen}
                 onClose={handleCloseModal}
-                children={modalContent}
-            />
+            >
+                {modalContent}
+            </Modal>
         </div>
     );
 };

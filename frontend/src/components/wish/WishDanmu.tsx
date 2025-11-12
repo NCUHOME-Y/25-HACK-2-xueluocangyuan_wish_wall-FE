@@ -53,11 +53,8 @@ const WishDanmu = ({
         if (!scrollRef.current) return;
 
         const step = () => {
-            // 可在此处调整速度因子，例如响应交互或不同设备负载
-            const velocityFactor = 0; // set to non-zero to alter speed dynamically
-
             // 每帧移动量（以像素为单位），基于 60fps 估算
-            const moveBy = (baseVelocity / 60) * (1 + Math.abs(velocityFactor) * 0.1) * directionFactor.current;
+            const moveBy = (baseVelocity / 60) * directionFactor.current;
 
             offsetRef.current += moveBy;
 
@@ -80,7 +77,7 @@ const WishDanmu = ({
         animRef.current = requestAnimationFrame(step);
 
         return () => {
-            if (animRef.current != null) cancelAnimationFrame(animRef.current);
+            if (animRef.current !== null) cancelAnimationFrame(animRef.current);
         };
     }, [itemWidth, baseVelocity, repeatCount]);
 
