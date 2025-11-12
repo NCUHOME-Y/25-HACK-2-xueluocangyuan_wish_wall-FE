@@ -60,6 +60,28 @@ export const getMyWishes = async (
     },
   };
 };
+//获取公开许愿列表
+export const getPublicWishes = async (
+  page: number = 1,
+  pageSize: number = 20
+): Promise<WishListResponse> => {
+  const res = await apiClient.get<ApiResponse<WishListData>>("/wishes/public", {
+    params: {
+      page,
+      pageSize
+    }
+  });
+  const { wishes, page: p, pageSize: s, total } = res.data.data;
+  return {
+    wishes,
+    pagination: {
+      page: p,
+      pageSize: s,
+      total,
+      hasMore: p * s < total,
+    },
+  };
+};
 //发布心愿功能
 //定义发布心愿时发送给后端的数据类型
 interface NewWishData {
@@ -77,7 +99,7 @@ export const createWish = async (
   const newWishData: NewWishData = {
     content: content,
     isPublic: isPublic,
-    tags: tags
+    tags: tags,
   };
   //调用api
   const res = await apiClient.post<ApiResponse<Wish>>("/wishes", newWishData);
@@ -90,4 +112,5 @@ export const services = {
   authService,
   getMyWishes,
   createWish,
+  getPublicWishes,
 };
