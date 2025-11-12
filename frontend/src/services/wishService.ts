@@ -9,6 +9,9 @@ export interface Wish {
   likeCount: number;
   commentCount: number;
   createdAt: string;
+  nickname: string;
+  avatar: string;
+  isOwn: boolean; //是否是当前用户的心愿
 }
 
 // 后端 data 里包含列表与分页信息的结构
@@ -107,10 +110,78 @@ export const createWish = async (
 };
 
 import { authService } from './authService';
+
+// 定义 'POST /api/wishes/{id}/like' 成功后 data 字段的类型
+interface LikeWishResponse {
+  liked: boolean;
+  likeCount: number;
+  wishId: number;
+}
+//点赞功能
+// (对应 Apifox 上的 'POST 点赞/取消点赞愿望')
+export const likeWish = async (wishId: number): Promise<LikeWishResponse> => {
+  const response = await apiClient.post<ApiResponse<LikeWishResponse>>(
+    `/wishes/${wishId}/like`
+    // 这个 POST 请求不需要 body
+  );
+  // 拦截器已处理错误，这里是成功
+  return response.data.data;
+};
+
+//评论功能
+
+// 定义 'POST /api/wishes/{id}/comments' 时发送的数据类型
+interface AddCommentPayload {
+  content: string;
+}
+
+// 定义 'POST 评论愿望' 成功后 data 字段的类型
+interface Comment {
+  id: number;
+  userId:number;
+  userNickname:string;
+  userAvatar:string;
+  wishId:number;
+  likeCount:number;
+  content: string;
+  createdAt: string;
+  isOwn: boolean; 
+}
+
+// (对应 Apifox 上的 'POST 评论愿望')
+export const addComment = async (
+  wishId: number, 
+  content: string
+): Promise<Comment> => {
+  
+  const payload: AddCommentPayload = { content };
+  
+  const response = await apiClient.post<ApiResponse<Comment>>(
+    `/api/wishes/${wishId}/comment`,
+    payload
+  );
+  
+  return response.data.data; // 返回新创建的评论
+};
+
+// 删除心愿功能
+
+// (对应 Apifox 上的 'DEL 删除指定ID的愿望')
+export const deleteWish = async (wishId: number): Promise<void> => {
+  
+  await apiClient.delete<ApiResponse<{}>>(
+    `/wishes/${wishId}`
+  );
+  // 如果代码能走到这里，说明删除成功了
+  return;
+};
 //统一导出
 export const services = {
   authService,
   getMyWishes,
   createWish,
   getPublicWishes,
+  likeWish,
+  addComment,
+  deleteWish,
 };
