@@ -138,41 +138,49 @@ interface AddCommentPayload {
 // 定义 'POST 评论愿望' 成功后 data 字段的类型
 interface Comment {
   id: number;
-  userId:number;
-  userNickname:string;
-  userAvatar:string;
-  wishId:number;
-  likeCount:number;
+  userId: number;
+  userNickname: string;
+  userAvatar: string;
+  wishId: number;
+  likeCount: number;
   content: string;
   createdAt: string;
-  isOwn: boolean; 
+  isOwn: boolean;
 }
 
 // (对应 Apifox 上的 'POST 评论愿望')
 export const addComment = async (
-  wishId: number, 
+  wishId: number,
   content: string
 ): Promise<Comment> => {
-  
+
   const payload: AddCommentPayload = { content };
-  
+
   const response = await apiClient.post<ApiResponse<Comment>>(
     `/api/wishes/${wishId}/comment`,
     payload
   );
-  
+
   return response.data.data; // 返回新创建的评论
 };
 
 // 删除心愿功能
-
 // (对应 Apifox 上的 'DEL 删除指定ID的愿望')
 export const deleteWish = async (wishId: number): Promise<void> => {
-  
+
   await apiClient.delete<ApiResponse<{}>>(
     `/wishes/${wishId}`
   );
   // 如果代码能走到这里，说明删除成功了
+  return;
+};
+//删除评论
+export const deleteComment = async (commentId: number): Promise<void> => {
+
+  await apiClient.delete<ApiResponse<{}>>(
+    `/api/comments/${commentId}`
+  );
+  //一样
   return;
 };
 //统一导出
@@ -184,4 +192,5 @@ export const services = {
   likeWish,
   addComment,
   deleteWish,
+  deleteComment
 };
