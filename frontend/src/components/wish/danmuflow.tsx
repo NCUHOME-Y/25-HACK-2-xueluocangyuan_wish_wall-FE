@@ -85,7 +85,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
     } finally {
       setIsSubmittingComment(false);
     }
-  }, [modalWish, commentInput, isSubmittingComment, onDataChange]);
+  }, [modalWish, commentInput, onDataChange]);
 
   // 弹幕渲染
   const danmuRows = wishes.map((wish, index) => (
