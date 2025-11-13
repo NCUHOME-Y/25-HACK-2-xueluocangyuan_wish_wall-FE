@@ -49,7 +49,7 @@ function PublicFeed() {
         <DanmuFlow 
           wishes={wishes} 
           loading={loading} 
-          onDataChange={fetchWishes}  // 关键：传递刷新函数
+          onDataChange={fetchWishes} 
         />
       </div>
       <div className="action-buttons">
