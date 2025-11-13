@@ -4,7 +4,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 interface UserProfile {
     id: number;
     username: string;
-    avatar_id: string;
+    avatar_id: number;
     nickname: string;
 }
 // 定义 Zustand 用户状态管理的接口
