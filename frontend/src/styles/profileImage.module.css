@@ -25,12 +25,34 @@ body {
     text-align: center;
 }
 
+.confirmButton {
+    position: absolute;
+    right: 20px;
+    top: 50px;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.6);
+    border: none;
+    font-size: 1rem;
+    color: rgba(85, 108, 128, 1);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
 .images {
     max-width: 800px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-gap: 20px;
     margin: 40px auto 0 auto;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: border 0.2s ease-in-out;
+}
+
+.selectedImage {
+    border: 3px solid rgba(255, 255, 255, 0.8); 
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); 
 }
 
 .image {
