@@ -5,7 +5,7 @@ const ProfileButton = () => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate('/Profile');
+    navigate('/profile');
   };
 
   return (
