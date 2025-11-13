@@ -12,7 +12,7 @@ const ProfileButton = () => {
     <Button 
       onClick={handleClick}
       className="profile-button"
-      icon="" 
+      icon="@/assets/images/个人.svg" 
     />
   );
 };
