@@ -5,7 +5,7 @@ import '@/styles/wishdanmu.css';
 import '@/styles/wishModal.css';
 import commentButton from '@/assets/images/commentButton.svg';
 import likeButton from '@/assets/images/likeButton.svg';
-import { getPublicWishes, likeWish, addComment } from '@/services/wishService';
+import { likeWish, addComment } from '@/services/wishService';
 import { type Wish } from '@/services/wishService'; // 直接使用 Wish 类型
 
 // 评论类型（显式定义）
