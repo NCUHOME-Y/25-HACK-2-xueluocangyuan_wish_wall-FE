@@ -1,3 +1,4 @@
+
 import apiClient from "./apiClient";
 
 //许愿内容类型
@@ -183,6 +184,53 @@ export const deleteComment = async (commentId: number): Promise<void> => {
   //一样
   return;
 };
+//获取某条愿望的评论和点赞
+// 定义点赞着信息
+interface Liker {
+  userId: number;
+  nickname: string;
+  avatar: string;
+  likedAt: string;
+}
+// 定义点赞信息
+interface LikesInfo {
+  totalCount: number;
+  userList: Liker[];
+  currentUserLiked: boolean;
+}
+// 定义分页信息类型
+interface PaginationInfo {
+  page: number;
+  pageSize: number;
+  total: number;
+}
+
+// 定义评论信息类型
+interface CommentsInfo {
+  list: Comment[];
+  pagination: PaginationInfo;
+}
+
+// 定义完整评论响应体类型
+interface WishInteractionsResponse {
+  wishInfo: Wish; 
+  likes: LikesInfo;    
+  comments: CommentsInfo; 
+}
+
+
+//获取评论和点赞功能实现
+export const getWishInteractions = async (
+  wishId: number
+): Promise<WishInteractionsResponse> => {
+  
+  const response = await apiClient.get<ApiResponse<WishInteractionsResponse>>(
+    `/wishes/${wishId}/interactions`
+  );
+  
+  return response.data.data;
+};
+
 //统一导出
 export const services = {
   authService,
@@ -192,5 +240,6 @@ export const services = {
   likeWish,
   addComment,
   deleteWish,
-  deleteComment
+  deleteComment,
+  getWishInteractions,
 };
