@@ -11,7 +11,7 @@ export interface Wish {
   commentCount: number;
   createdAt: string;
   nickname: string;
-  avatar: string;
+  avatarId: number;
   isOwn: boolean; //是否是当前用户的心愿
 }
 
@@ -141,7 +141,7 @@ interface Comment {
   id: number;
   userId: number;
   userNickname: string;
-  userAvatar: string;
+  userAvatarId: number;
   wishId: number;
   likeCount: number;
   content: string;
@@ -189,7 +189,7 @@ export const deleteComment = async (commentId: number): Promise<void> => {
 interface Liker {
   userId: number;
   nickname: string;
-  avatar: string;
+  avatarId: number;
   likedAt: string;
 }
 // 定义点赞信息
