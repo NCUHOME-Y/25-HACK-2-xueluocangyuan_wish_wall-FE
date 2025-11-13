@@ -4,7 +4,7 @@ import apiClient from "./apiClient";
 interface User {
     id: number;
     username: string;
-    avatar_id: string;
+    avatar_id: number;
     nickname: string;
 }
 //定义api响应体
@@ -16,7 +16,7 @@ interface ApiResponse<T> {
 // 定义 'PUT /api/user/me' 接口的 "请求体" 类型
 type UpdateUserPayload = Partial<{
   nickname: string;
-  avatar_id: string;
+  avatar_id: number;
 }>
 
 // 更新用户信息 (合并了“修改昵称” 和 “更新头像” 两个需求)

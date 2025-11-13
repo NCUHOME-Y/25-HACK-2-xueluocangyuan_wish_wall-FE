@@ -12,7 +12,7 @@ interface AuthData{
     user: {
         id: number;
         username: string;
-        avatar_id: string;
+        avatar_id: number;
         nickname: string;
     }
 }
