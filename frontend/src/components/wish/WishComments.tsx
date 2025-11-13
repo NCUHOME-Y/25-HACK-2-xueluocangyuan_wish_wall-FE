@@ -22,9 +22,9 @@ const mockComments: Comment[] = [
     // 更多评论...
 ];
 
-const WishComment: React.FC<WishCommentProps> = ({ wishId, onCommentPosted }) => {
+const WishComment: React.FC<WishCommentProps> = ({ wishId, initialComments, onCommentPosted }) => {
     const [commentContent, setCommentContent] = useState('');
-    const [comments, setComments] = useState<Comment[]>(mockComments); // 使用mock数据或 initialComments
+    const [comments, setComments] = useState<Comment[]>(initialComments || mockComments); // 使用 initialComments 或 mock数据
 
     const handlePostComment = async (e: FormEvent) => {
         e.preventDefault();
