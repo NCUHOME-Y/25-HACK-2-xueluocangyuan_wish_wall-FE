@@ -57,7 +57,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
     } finally {
       setIsLiking(false);
     }
-  }, [modalWish, isLiking, onDataChange]);
+  }, [modalWish, onDataChange]);
 
   // 评论处理
   const handleComment = useCallback(async () => {
