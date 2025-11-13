@@ -8,8 +8,14 @@ import likeButton from '@/assets/images/likeButton.svg';
 import { getPublicWishes, likeWish, addComment } from '@/services/wishService';
 import { type Wish } from '@/services/wishService'; // 直接使用 Wish 类型
 
-// 评论类型（从服务中导入）
-type Comment = Awaited<ReturnType<typeof addComment>>;
+// 评论类型（显式定义）
+interface Comment {
+  id: number | string;
+  content: string;
+  userNickname: string;
+  userAvatar: string;
+  createdAt: string;
+}
 
 interface DanmuFlowProps {
   wishes: Wish[];
