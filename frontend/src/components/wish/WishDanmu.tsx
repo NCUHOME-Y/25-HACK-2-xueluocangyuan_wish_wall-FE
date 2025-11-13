@@ -6,12 +6,14 @@ import snowflakeImg from '@/assets/images/雪花.svg';
 export interface DanmuData {
     id: number | string;
     wishContent: string;
+    nickName?: string;
+    avatar?: string;
 }
 
 interface WishDanmuProps {
     data: DanmuData;
     baseVelocity?: number;
-    onDanmuClick: (fullText: string) => void;
+    onDanmuClick: (data: DanmuData) => void;
 }
 
 const MAX_CHARS = 10; // 最大显示字数
@@ -43,7 +45,6 @@ const WishDanmu = ({
             const screenWidth = window.innerWidth;
             const needed = Math.ceil(screenWidth / width) + 2;
             setRepeatCount(needed);
-            
         }
     }, [displayContent]); // 当文本改变时重新计算
 
@@ -82,7 +83,7 @@ const WishDanmu = ({
     }, [itemWidth, baseVelocity, repeatCount]);
 
     const handleDanmuClick = () => {
-        onDanmuClick(wishContent);
+        onDanmuClick(data);
     };
 
     return (
