@@ -94,7 +94,6 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
     <form onSubmit={handleSubmit} className="wish-form">
       <div className="modal-header">
         <div className="profile-information">
-          <img src="" alt="头像" className="profile-image" />
           <span className="profile-nickname">NayyByte</span>
         </div>
         <h4 className="modal-title">时遇小雪，请写下你此时的心愿。</h4>
