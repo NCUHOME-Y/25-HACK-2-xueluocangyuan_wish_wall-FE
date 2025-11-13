@@ -1,0 +1,97 @@
+.wish-detail-modal {
+    padding: 24px; 
+    min-width: 320px;
+    max-width: 450px;
+    background: rgba(255, 255, 255, 0.85); 
+    border-radius: 16px; 
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); 
+    border: 1px solid rgba(255, 255, 255, 0.4); 
+    backdrop-filter: blur(5px); 
+    text-align: center; /
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(173, 216, 230, 0.5); 
+}
+
+.user-info .avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 8px;
+    object-fit: cover;
+}
+
+.user-info .nickname {
+    font-size: 18px;
+    font-weight: 500;
+    color: #4682b4; 
+    display: flex; 
+    align-items: center;
+}
+
+.user-info .nickname::before {
+    content: '💧'; 
+    margin-right: 8px;
+    font-size: 20px;
+    opacity: 0.7;
+}
+
+
+.wish-content {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #6a5acd;
+    margin: 15px 0 30px 0;
+    padding: 20px 15px;
+    background: rgba(255, 255, 255, 0.7); 
+    border-radius: 12px;
+    border: 1px solid rgba(173, 216, 230, 0.6);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    min-height: 150px; 
+    box-sizing: border-box;
+    text-align: left; 
+}
+
+.modal-actions {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+}
+
+.modal-actions .like-button,
+.modal-actions .comment-button {
+    flex: none; 
+    width: 80px; 
+    padding: 8px 10px;
+    border-radius: 25px; 
+    font-size: 14px;
+    transition: all 0.3s ease;
+    border: none; 
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.7);
+    color: #4682b4; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+}
+
+.modal-actions .comment-button {
+    
+}
+
+.modal-actions .like-button:hover {
+    background: #e0f7fa; 
+    color: #00bcd4;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.modal-actions .comment-button:hover {
+    background: #e3f2fd; 
+    color: #2196f3;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}

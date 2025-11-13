@@ -1,0 +1,86 @@
+.register-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.register-title {
+    font-size: 3rem;
+    margin-bottom: clamp(30px, 5vh, 60px);
+    font-family: 'title';
+    color: rgba(254, 255, 245, 1);
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.nickname,
+.username,
+.password {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: clamp(8px, 2vw, 24px);
+    background: linear-gradient(90deg,
+        rgba(207, 227, 255, 0.7) 0%,
+        rgba(232, 249, 252, 0.7) 100%);
+    font-size: 1.5rem;
+    width: clamp(280px, 90vw, 354px);
+    height: clamp(42px, 5vw, 54px);
+    padding: 0 10px;
+}
+
+.nickname-label,
+.username-label,
+.password-label {
+    font-size: 1.25rem;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 1);
+}
+
+.nickname input,
+.username input,
+.password input {
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    margin-left: 10px;
+    width: 100%;
+    height: 80%;
+    padding: 0 10px;
+}
+
+.nickname input::placeholder,
+.username input::placeholder,
+.password input::placeholder {
+    color: rgba(247, 251, 255, 1);
+}
+
+.register-button {
+    background: linear-gradient(90deg, rgba(207, 227, 255, 0.7) 0%, rgba(232, 249, 252, 0.7) 100%);
+    border-radius: clamp(8px, 2vw, 24px);
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 1);
+    width: clamp(280px, 90vw, 314px);
+    margin-top: 60px;
+    height: clamp(42px, 5vw, 54px);
+}
+
+.register-notice {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 1);
+    text-shadow: 0px 0px 14px  rgba(17, 60, 99, 1);
+}
+
+.register-link {
+    text-decoration: underline;
+    color: rgba(212, 246, 252, 1);
+    font-size: 1.25rem;
+    text-shadow: 0px 0px 14px  rgba(17, 60, 99, 1);
+}

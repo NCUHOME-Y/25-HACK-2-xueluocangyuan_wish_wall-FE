@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useUserStore } from '@/store/userStore';
 import { authService } from '@/services/authService';
 import Button from '@/components/common/Button';
+import '@/styles/register.css';
 
 export const Register = () => {
   const [username, setUsername] = useState("");
@@ -48,37 +49,42 @@ export const Register = () => {
   return (
      <div className="register-container">
             <div className="register-title">创建账户</div>
+            <div className="input-container">
             <div className="nickname">
-                昵称：
+                <span className="nickname-label">昵称：</span>
                 <input
                     type="text"
                     value={nickname}
+                    placeholder="请输入昵称"
                     onChange={(e) => setNickname(e.target.value)}
                     disabled={loading || success}
                 />
             </div>
             <div className="username">
-                学号：
+                <span className="username-label">学号：</span>
                 <input
                     type="text"
                     value={username}
+                    placeholder="请输入账号/学号"
                     onChange={(e) => setUsername(e.target.value)}
                     disabled={loading || success}
                 />
             </div>
             <div className="password">
-                密码：
+                <span className="password-label">密码：</span>
                 <input
                     type="password"
                     value={password}
+                    placeholder="请输入密码"
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={loading || success}
                 />
             </div>
+            </div>
             
             <div className="register-button-container">
               {loading && (
-                <img src=""
+                <img src="@/assets/images/background.jpg"
                      alt="加载中..."
                      className="loading-img-spin"
                 />
@@ -88,6 +94,7 @@ export const Register = () => {
                 <Button 
                     onClick={handleSubmit} 
                     text="注册"
+                    className="register-button"
                     disabled={!username || !password || !nickname}
                 />
               )}
@@ -99,7 +106,9 @@ export const Register = () => {
                     </div>
                 )}
 
-                <div className="register-notice">已有账号？<Link to="/login">立即登录</Link></div>
+                <div className="register-notice">已有账号？
+                  <Link to="/login" className="register-link">立即登录</Link>
+                </div>
         </div>
   );
 };

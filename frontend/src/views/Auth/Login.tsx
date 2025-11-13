@@ -4,6 +4,7 @@ import { authService } from '@/services/authService';
 import { useNavigate, Link } from "react-router-dom";
 import { useUserStore } from '@/store/userStore';
 import Button from '@/components/common/Button';
+import '@/styles/login.css'
 
 export const Login = () => {
   const [username, setUsername] = useState("");
@@ -49,8 +50,9 @@ export const Login = () => {
     <div className="login-container">
       <div className="login-title">欢迎来到雪落藏愿</div>
       
+      <div className="input-container">
       <div className="username-input-container">
-        账号：
+        <span className="username">账号：</span>
         <input
           type="text"
           value={username}
@@ -61,7 +63,7 @@ export const Login = () => {
       </div>
 
       <div className="password-input-container">
-        密码：
+        <span className="password">密码：</span>
         <input
           type="password"
           value={password}
@@ -70,11 +72,12 @@ export const Login = () => {
           disabled={loading || success}
         />
       </div>
+      </div>
 
        <div className="login-button-container">
         {loading && (
           <img 
-            src="/path/to/loading...0%.png" 
+            src="@/assets/images/background.jpg" 
             alt="加载中" 
             className="loading-image spin"
           />
@@ -82,7 +85,7 @@ export const Login = () => {
         
         {success && (
           <img 
-            src="/path/to/loading...100%.png" 
+            src="@/assets/images/background.jpg" 
             alt="加载成功" 
             className="loading-image success"
           />
@@ -104,7 +107,7 @@ export const Login = () => {
       )}
 
       <div className="login-note">
-        没有账号？<Link to="/register">立即注册</Link>
+        没有账号？<Link to="/register" className="register-link">立即注册</Link>
       </div>
     </div>
   );
