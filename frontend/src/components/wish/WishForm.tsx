@@ -5,12 +5,15 @@ import Button from '@/components/common/Button.tsx';
 import '@/styles/WishForm.css'; 
 
 // 模拟一个简单的 Switch 组件
-const SimpleSwitch: React.FC<{ checked: boolean, onChange: (checked: boolean) => void }> = ({ checked, onChange }) => (
-    <label className="simple-switch">
+const SimpleSwitch: React.FC<{ checked: boolean, onChange: (checked: boolean) => void, id?: string, label?: string }> = ({ checked, onChange, id, label }) => (
+    <label className="simple-switch" htmlFor={id}>
+        {label && <span className="sr-only">{label}</span>}
         <input 
+            id={id}
             type="checkbox" 
             checked={checked} 
             onChange={(e) => onChange(e.target.checked)} 
+            aria-label={label}
         />
         <span className="slider round" />
     </label>
