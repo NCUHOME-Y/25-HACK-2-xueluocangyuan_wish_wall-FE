@@ -9,7 +9,7 @@ const BackButton = () => {
     };
 
     return (
-       <Button
+      <Button
        className="back-button"
        onClick={handleCancel}
        icon="@/assets/images/返回.svg"
