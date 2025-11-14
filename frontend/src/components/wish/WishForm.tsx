@@ -4,17 +4,6 @@ import { useUserStore } from '@/store/userStore';
 import Button from '@/components/common/Button.tsx';
 import '@/styles/wishModal.css';
 
-const SimpleSwitch: React.FC<{ checked: boolean, onChange: (checked: boolean) => void }> = ({ checked, onChange }) => (
-  <label className="simple-switch">
-    <input 
-      type="checkbox" 
-      checked={checked} 
-      onChange={(e) => onChange(e.target.checked)} 
-    />
-    <span className="slider round" />
-  </label>
-);
-
 interface WishFormProps {
   onSuccess: () => void;
   onCancel: () => void;
@@ -54,6 +43,7 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
   };
   
   return (
+    <div className="wish-modal">
     <form onSubmit={handleSubmit} className="wish-form">
       <div className="modal-header">
         {/* 只在用户存在时渲染用户信息 */}
@@ -70,36 +60,32 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
             <span className="profile-nickname">{user.nickname}</span>
           </div>
         )}
-        <h4 className="modal-title">时遇小雪，请写下你此时的心愿。</h4>
       </div>
 
       <div className="form-group">
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="写下你的心愿（最多200字）"
-          maxLength={200}
-          rows={5}
+          placeholder="时遇小雪，请写下你此时的心愿："
           className="wish-content-textarea"
         />
-        <div className="char-count">{content.length}/200</div>
       </div>
 
-      <div className="form-group privacy-toggle">
+      <div className="privacy-button-group">
         <Button 
-          text={isPublic ? "设为私密" : "设为公开"}
           onClick={togglePrivacy}
           type="button"
           className="privacy-button"
           disabled={loading}
         />
-        <SimpleSwitch checked={isPublic} onChange={setIsPublic} />
         <span className="privacy-status">
-          {isPublic ? '公开可见' : '仅自己可见'}
+          {isPublic ? '公开心愿' : '不公开心愿'}
         </span>
       </div>
 
       {error && <p className="error-message">{error}</p>}
+
+      </form>
 
       <div className="modal-actions">
         <Button 
@@ -116,7 +102,7 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
           disabled={loading || !content.trim()}
         />
       </div>
-    </form>
+    </div>
   );
 }
 
