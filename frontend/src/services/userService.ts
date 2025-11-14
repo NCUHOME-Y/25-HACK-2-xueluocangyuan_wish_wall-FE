@@ -24,10 +24,10 @@ export const updateUserProfile = async (
   payload: UpdateUserPayload
 ): Promise<User> => {
 
-  const res = await apiClient.put<ApiResponse<User>>('/user', payload);
+  const res = await apiClient.put<ApiResponse<User>, ApiResponse<User>>('/user', payload);
 
   // 返回更新后的、完整的 User 对象
-  return res.data.data;
+  return res.data;
 };
 
 

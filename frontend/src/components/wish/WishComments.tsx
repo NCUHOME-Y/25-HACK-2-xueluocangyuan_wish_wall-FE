@@ -1,25 +1,8 @@
 import React, { useState, useEffect, type FormEvent } from 'react';
 import Button from '@/components/common/Button';
 import { addComment, getWishInteractions } from '@/services/wishService';
+import { getAvatarUrl } from '@/utils/avatar';
 
-// 使用 import.meta.glob 预加载头像
-const avatarFiles = import.meta.glob('@/assets/images/头像*.svg', { eager: true }) as Record<
-    string,
-    { default: string }
->;
-const defaultAvatar = avatarFiles['/src/assets/images/头像1.svg'].default;
-
-// 构建 id -> url 映射
-const avatarMap: Record<number, string> = {};
-for (const [path, mod] of Object.entries(avatarFiles)) {
-    const m = path.match(/头像(\d+)\.svg$/);
-    if (m) {
-        avatarMap[Number(m[1])] = mod.default;
-    }
-}
-
-// 根据 avatarId 获取头像地址
-const getAvatarUrl = (avatarId: number) => avatarMap[avatarId] || defaultAvatar || '';
 
 // 与服务层 wishService 中的 Comment 结构保持一致
 type ServiceComment = {
@@ -65,11 +48,11 @@ const WishComment: React.FC<WishCommentProps> = ({ wishId, initialComments, onCo
                 setError(null);
                 const data = await getWishInteractions(id);
                 if (controller.signal.aborted) return;
-                setComments(data.comments.list);
+                setComments(data?.comments?.list ?? []);
             } catch (err: any) {
                 if (controller.signal.aborted) return;
                 setError(err?.msg || err?.message || '获取评论失败，请稍后重试');
-                console.error('Failed to fetch comments:', err);
+                console.error('Failed to fetch comments:', err?.msg || err?.message || err);
             } finally {
                 if (!controller.signal.aborted) setLoading(false);
             }
@@ -98,8 +81,8 @@ const WishComment: React.FC<WishCommentProps> = ({ wishId, initialComments, onCo
             onCommentPosted?.(newComment);
             setCommentContent('');
         } catch (err: any) {
-            setError('发布评论失败，请重试');
-            console.error('Failed to post comment:', err);
+            setError(err?.msg || err?.message || '发布评论失败，请重试');
+            console.error('Failed to post comment:', err?.msg || err?.message || err);
         } finally {
             setPosting(false);
         }
@@ -123,12 +106,11 @@ const WishComment: React.FC<WishCommentProps> = ({ wishId, initialComments, onCo
                 ) : (
                     comments.map(comment => (
                         <div key={comment.id} className="comment-item">
-                            <img
-                              src={getAvatarUrl(comment.userAvatarId)}
-                              alt={comment.userNickname}
-                              className="comment-avatar"
-                              onError={(e) => { (e.currentTarget as HTMLImageElement).src = defaultAvatar; }}
-                            />
+                                                        <img
+                                                            src={getAvatarUrl(comment.userAvatarId)}
+                                                            alt={comment.userNickname}
+                                                            className="comment-avatar"
+                                                        />
                             <div className="comment-body">
                                 <div className="comment-header">
                                     <span className="comment-user">{comment.userNickname}</span>

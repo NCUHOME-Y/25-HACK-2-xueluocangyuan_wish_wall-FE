@@ -9,6 +9,7 @@ import like from '@/assets/images/likeButton.svg';
 import { addComment, getWishInteractions } from '@/services/wishService';
 import { type Wish } from '@/services/wishService';
 import Button from '@/components/common/Button.tsx';
+import { getAvatarUrl } from '@/utils/avatar';
 
 // 本地定义评论类型，匹配服务端返回字段
 type WishComment = {
@@ -37,18 +38,6 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
   // 使用 ref 管理请求取消
   const abortControllerRef = useRef<AbortController | null>(null);
   
-  // 头像资源映射：根据文件名中的数字构建 id -> url 对应关系
-  const avatarModules = import.meta.glob('/src/assets/images/*.svg', { eager: true, as: 'url' }) as Record<string, string>;
-  const avatarUrlById: Record<number, string> = {};
-  for (const [path, url] of Object.entries(avatarModules)) {
-    const match = path.match(/(\d+)\.svg$/);
-    if (match) {
-      const id = Number(match[1]);
-      if (!Number.isNaN(id)) avatarUrlById[id] = url;
-    }
-  }
-  const defaultAvatar = avatarModules['/src/assets/images/头像1.svg'] || Object.values(avatarModules)[0] || '';
-  const getAvatarUrl = useCallback((id: number) => avatarUrlById[id] || defaultAvatar, [defaultAvatar]);
   
   // 弹窗状态
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -73,27 +62,30 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
       // 加载评论列表
       const interactions = await getWishInteractions(wish.id);
 
-      const enhancedWish : WishWithLiked = {
-         ...wish,
-         isLiked: interactions.likes.currentUserLiked,
+      const enhancedWish: WishWithLiked = {
+        ...wish,
+        isLiked: interactions?.likes?.currentUserLiked ?? false,
       };
 
       setModalWish(enhancedWish);
       setIsModalOpen(true);
       setShowComments(false);// 隐藏评论区
 
-      const commentsData: WishComment[] = interactions.comments.list.map((c: any) => ({
-        id: c.id,
-        userNickname: c.userNickname,
-        userAvatarId: c.userAvatarId,
-        content: c.content,
-        createdAt: c.createdAt,
-      }));
+      const list = interactions?.comments?.list ?? [];
+      const commentsData: WishComment[] = list
+        .filter((c: any) => c && typeof c === 'object')
+        .map((c: any) => ({
+          id: Number(c.id) || 0,
+          userNickname: String(c.userNickname || '匿名用户'),
+          userAvatarId: Number(c.userAvatarId) || 0,
+          content: String(c.content || ''),
+          createdAt: c.createdAt || new Date().toISOString(),
+        }));
       setComments(commentsData);
 
-    } catch (err) {
+    } catch (err: any) {
       if (!isAbortError(err)) {
-        console.error('获取评论失败:', err);
+        console.error('获取评论失败:', err?.msg || err?.message || err);
         setComments([]); // 失败时清空评论
       }
     }
@@ -167,8 +159,8 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
       setCommentInput('');
       setModalWish(prev => prev ? { ...prev, commentCount: prev.commentCount + 1 } : null);
       onDataChange();
-    } catch (err) {
-      console.error('评论失败:', err);
+    } catch (err: any) {
+      console.error('评论失败:', err?.msg || err?.message || err);
     } finally {
       setIsSubmittingComment(false);
     }

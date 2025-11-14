@@ -40,7 +40,7 @@ function PublicFeed() {
     fetchWishes();
   };
 
-  const CheckWishes = () => navigate("/Galaxy");
+  const CheckWishes = () => navigate("/galaxy");
 
   return (
     <div className="public-feed-page">

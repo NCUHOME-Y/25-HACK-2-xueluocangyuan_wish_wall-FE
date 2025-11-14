@@ -43,6 +43,7 @@ const router = createBrowserRouter([
           { path: "publicfeed", element: <PublicFeed /> },
           { path: "galaxy", element: <Galaxy /> },
           { path: "profile", element: <Profile profileImage="" nickName="" /> },
+          {path: "profileImage", element: <Profile profileImage="" nickName="" /> },
         ],
       },
     ],

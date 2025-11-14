@@ -29,7 +29,7 @@ export const Login = () => {
     setError(null);
     try {
       const res = await authService.login({ username, password });
-      if (res.code === 200) {
+      if (res.code === 200 || res.code === 201) {
         const { token, user } = res.data;
         setToken(token);
         setUser(user);
@@ -40,7 +40,7 @@ export const Login = () => {
         setError(res.msg || '登录失败');
       }
     } catch (err: any) {
-      setError(err?.message || '网络错误');
+      setError(err?.msg || err?.message || '网络错误');
     } finally {
       setLoading(false);
     }

@@ -26,13 +26,13 @@ interface ApiResponse<T> {
 //api函数
 //用户登录
 export const login= async (credentials: AuthCredentials) => {
-    const response = await apiClient.post<ApiResponse<AuthData>>("/login", credentials);
-    return response.data;
+    const response = await apiClient.post<ApiResponse<AuthData>, ApiResponse<AuthData>>("/login", credentials);
+    return response;
 }
 //用户注册
 export const register= async (credentials: AuthCredentials) => {
-    const response = await apiClient.post<ApiResponse<AuthData>>("/register", credentials);
-    return response.data;
+    const response = await apiClient.post<ApiResponse<AuthData>, ApiResponse<AuthData>>("/register", credentials);
+    return response;
 }
 export const authService = {
     login,

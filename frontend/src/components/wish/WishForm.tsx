@@ -3,6 +3,7 @@ import { services } from '../../services/wishService';
 import { useUserStore } from '@/store/userStore';
 import Button from '@/components/common/Button.tsx';
 import '@/styles/wishModal.css';
+import { getAvatarUrl } from '@/utils/avatar';
 
 interface WishFormProps {
   onSuccess: () => void;
@@ -49,13 +50,10 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
         {/* 只在用户存在时渲染用户信息 */}
         {user && (
           <div className="profile-information">
-            <img 
-              src={`/api/avatars/${user.avatar_id}.svg`}
-              alt="头像" 
+            <img
+              src={getAvatarUrl(user.avatar_id)}
+              alt="头像"
               className="profile-image"
-              onError={(e) => {
-                e.currentTarget.src = '../assets/images/头像1.svg'; // 加载失败时使用默认头像
-              }}
             />
             <span className="profile-nickname">{user.nickname}</span>
           </div>
@@ -72,11 +70,12 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
       </div>
 
       <div className="privacy-button-group">
-        <Button 
+        <Button
           onClick={togglePrivacy}
           type="button"
           className="privacy-button"
           disabled={loading}
+          text={isPublic ? '公开' : '私密'}
         />
         <span className="privacy-status">
           {isPublic ? '公开心愿' : '不公开心愿'}
@@ -88,16 +87,17 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
       </form>
 
       <div className="modal-actions">
-        <Button 
-          text="取消" 
-          onClick={onCancel} 
+        <Button
+          text="取消"
+          onClick={onCancel}
           type="button"
-          className="cancel-button" 
+          className="cancel-button"
           disabled={loading}
         />
-        <Button 
-          text={loading ? "发布中..." : "发布心愿"} 
-          type="submit" 
+        <Button
+          text={loading ? '发布中...' : '发布心愿'}
+          onClick={(e) => { e.preventDefault(); handleSubmit(e as any); }}
+          type="button"
           className="submit-button"
           disabled={loading || !content.trim()}
         />

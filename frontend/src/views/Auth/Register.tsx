@@ -4,6 +4,7 @@ import { useUserStore } from '@/store/userStore';
 import { authService } from '@/services/authService';
 import Button from '@/components/common/Button';
 import '@/styles/register.css';
+import '@/styles/main.css'
 
 export const Register = () => {
   const [username, setUsername] = useState("");

@@ -47,13 +47,13 @@ export const getMyWishes = async (
 ): Promise<WishListResponse> => {
   //apiClient自动附加Token
   //响应体已经过拦截器处理，直接返回data字段
-  const res = await apiClient.get<ApiResponse<WishListData>>("/wishes/me", {
+  const res = await apiClient.get<ApiResponse<WishListData>,ApiResponse<WishListData>>("/wishes/me", {
     params: {
       page,
       pageSize
     }
   });
-  const { wishes, page: p, pageSize: s, total } = res.data.data;
+  const { wishes, page: p, pageSize: s, total } = res.data;
   return {
     wishes,
     pagination: {
@@ -69,13 +69,13 @@ export const getPublicWishes = async (
   page: number = 1,
   pageSize: number = 20
 ): Promise<WishListResponse> => {
-  const res = await apiClient.get<ApiResponse<WishListData>>("/wishes/public", {
-    params: {
+  const res = await apiClient.get<ApiResponse<WishListData>,ApiResponse<WishListData>>("/wishes/public", {
+    params: { 
       page,
       pageSize
     }
   });
-  const { wishes, page: p, pageSize: s, total } = res.data.data;
+  const { wishes, page: p, pageSize: s, total } = res.data;
   return {
     wishes,
     pagination: {
@@ -106,8 +106,8 @@ export const createWish = async (
     tags: tags,
   };
   //调用api
-  const res = await apiClient.post<ApiResponse<Wish>>("/wishes", newWishData);
-  return res.data.data;
+  const res = await apiClient.post<ApiResponse<Wish>,ApiResponse<Wish>>("/wishes", newWishData);
+  return res.data;
 };
 
 import { authService } from './authService';
@@ -121,12 +121,12 @@ interface LikeWishResponse {
 //点赞功能
 // (对应 Apifox 上的 'POST 点赞/取消点赞愿望')
 export const likeWish = async (wishId: number): Promise<LikeWishResponse> => {
-  const response = await apiClient.post<ApiResponse<LikeWishResponse>>(
+  const response = await apiClient.post<ApiResponse<LikeWishResponse>,ApiResponse<LikeWishResponse>>(
     `/wishes/${wishId}/like`
     // 这个 POST 请求不需要 body
   );
   // 拦截器已处理错误，这里是成功
-  return response.data.data;
+  return response.data;
 };
 
 //评论功能
@@ -157,12 +157,12 @@ export const addComment = async (
 
   const payload: AddCommentPayload = { content };
 
-  const response = await apiClient.post<ApiResponse<wishComment>>(
-    `/api/wishes/${wishId}/comment`,
+  const response = await apiClient.post<ApiResponse<wishComment>,ApiResponse<wishComment>>(
+    `/wishes/${wishId}/comment`,
     payload
   );
 
-  return response.data.data; // 返回新创建的评论
+  return response.data; // 返回新创建的评论
 };
 
 // 删除心愿功能
@@ -179,7 +179,7 @@ export const deleteWish = async (wishId: number): Promise<void> => {
 export const deleteComment = async (commentId: number): Promise<void> => {
 
   await apiClient.delete<ApiResponse<{}>>(
-    `/api/comments/${commentId}`
+    `/comments/${commentId}`
   );
   //一样
   return;
@@ -224,11 +224,11 @@ export const getWishInteractions = async (
   wishId: number
 ): Promise<WishInteractionsResponse> => {
   
-  const response = await apiClient.get<ApiResponse<WishInteractionsResponse>>(
+  const response = await apiClient.get<ApiResponse<WishInteractionsResponse>, ApiResponse<WishInteractionsResponse>>(
     `/wishes/${wishId}/interactions`
   );
   
-  return response.data.data;
+  return response.data;
 };
 
 //统一导出
