@@ -1,6 +1,6 @@
 import BackButton from "@/components/common/BackButton.tsx";
 import ProfileButton from "@/components/common/ProfileButton.tsx";
-import snowflakeImg from "@/assets/images/雪花.svg";
+import snowflakeImg from "@/assets/images/snowflake.svg";
 import "@/styles/Galaxy.css"
 import { useState, useEffect } from 'react';
 // 导入 wishService 和数据类型
