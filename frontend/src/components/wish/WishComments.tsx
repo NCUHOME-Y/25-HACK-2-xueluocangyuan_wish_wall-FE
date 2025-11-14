@@ -1,25 +1,49 @@
 import React, { useState, useEffect, type FormEvent } from 'react';
-import Button from '@/components/common/Button.tsx';
-import { addComment, getWishInteractions } from '@/services/wishService'; // 导入 API 函数
+import Button from '@/components/common/Button';
+import { addComment, getWishInteractions } from '@/services/wishService';
 
-interface Comment {
+// 使用 import.meta.glob 预加载头像
+const avatarFiles = import.meta.glob('@/assets/images/头像*.svg', { eager: true }) as Record<
+    string,
+    { default: string }
+>;
+const defaultAvatar = avatarFiles['/src/assets/images/头像1.svg'].default;
+
+// 构建 id -> url 映射
+const avatarMap: Record<number, string> = {};
+for (const [path, mod] of Object.entries(avatarFiles)) {
+    const m = path.match(/头像(\d+)\.svg$/);
+    if (m) {
+        avatarMap[Number(m[1])] = mod.default;
+    }
+}
+
+// 根据 avatarId 获取头像地址
+const getAvatarUrl = (avatarId: number) => avatarMap[avatarId] || defaultAvatar || '';
+
+// 与服务层 wishService 中的 Comment 结构保持一致
+type ServiceComment = {
     id: number;
-    userId: number;        
-    userName: string;      
-    avatar: string;        
+    userId: number;
+    userNickname: string;
+    userAvatarId: number;
+    wishId: number;
+    likeCount: number;
     content: string;
     createdAt: string;
-}
+    isOwn: boolean;
+};
+
 
 interface WishCommentProps {
     wishId: number | string;
-    initialComments?: Comment[]; 
-    onCommentPosted: (newComment: Comment) => void; 
+    initialComments?: ServiceComment[];
+    onCommentPosted?: (newComment: ServiceComment) => void;
 }
 
 const WishComment: React.FC<WishCommentProps> = ({ wishId, initialComments, onCommentPosted }) => {
     const [commentContent, setCommentContent] = useState('');
-    const [comments, setComments] = useState<Comment[]>(initialComments || []);
+    const [comments, setComments] = useState<ServiceComment[]>(initialComments || []);
     const [loading, setLoading] = useState(!initialComments); // 如果没有初始数据则加载
     const [error, setError] = useState<string | null>(null);
     const [posting, setPosting] = useState(false);
@@ -27,32 +51,31 @@ const WishComment: React.FC<WishCommentProps> = ({ wishId, initialComments, onCo
     // 组件挂载时获取评论
     useEffect(() => {
         if (initialComments) return; // 如果已有初始数据，不再获取
-        
-        const fetchComments = async () => {
+        const id = Number(wishId);
+        if (!Number.isFinite(id) || id <= 0) {
+            setError('无效的心愿ID');
+            return;
+        }
+
+        const controller = new AbortController();
+
+        (async () => {
             try {
                 setLoading(true);
                 setError(null);
-                // 调用 API 获取评论
-                const data = await getWishInteractions(Number(wishId));
-                // 转换数据格式以匹配组件的 Comment 类型
-                const formattedComments = data.comments.list.map(comment => ({
-                    id: comment.id,
-                    userId: comment.userId,
-                    userName: comment.userNickname, // 字段名转换
-                    avatar: comment.userAvatar,
-                    content: comment.content,
-                    createdAt: comment.createdAt
-                }));
-                setComments(formattedComments);
-            } catch (err) {
-                setError('获取评论失败，请稍后重试');
+                const data = await getWishInteractions(id);
+                if (controller.signal.aborted) return;
+                setComments(data.comments.list);
+            } catch (err: any) {
+                if (controller.signal.aborted) return;
+                setError(err?.msg || err?.message || '获取评论失败，请稍后重试');
                 console.error('Failed to fetch comments:', err);
             } finally {
-                setLoading(false);
+                if (!controller.signal.aborted) setLoading(false);
             }
-        };
+        })();
 
-        fetchComments();
+        return () => controller.abort();
     }, [wishId, initialComments]);
 
     const handlePostComment = async (e: FormEvent) => {
@@ -62,25 +85,19 @@ const WishComment: React.FC<WishCommentProps> = ({ wishId, initialComments, onCo
 
         setPosting(true);
         setError(null);
-        
+
         try {
-            // 调用真实 API 发布评论
-            const newComment = await addComment(Number(wishId), trimmed);
-            
-            // 转换数据格式
-            const formattedComment: Comment = {
-                id: newComment.id,
-                userId: newComment.userId,
-                userName: newComment.userNickname,
-                avatar: newComment.userAvatar,
-                content: newComment.content,
-                createdAt: newComment.createdAt
-            };
-            
-            setComments(prev => [...prev, formattedComment]);
-            onCommentPosted(formattedComment);
+            const id = Number(wishId);
+            if (!Number.isFinite(id) || id <= 0) {
+                setError('无效的心愿ID');
+                setPosting(false);
+                return;
+            }
+            const newComment = await addComment(id, trimmed);
+            setComments(prev => [...prev, newComment]);
+            onCommentPosted?.(newComment);
             setCommentContent('');
-        } catch (err) {
+        } catch (err: any) {
             setError('发布评论失败，请重试');
             console.error('Failed to post comment:', err);
         } finally {
@@ -96,20 +113,25 @@ const WishComment: React.FC<WishCommentProps> = ({ wishId, initialComments, onCo
     return (
         <div className="wish-comment-section">
             <h4 className="comment-title">评论 ({comments.length})</h4>
-            
+
             {/* 错误提示 */}
             {error && <div className="comment-error">{error}</div>}
-            
+
             <div className="comment-list">
                 {comments.length === 0 ? (
                     <p className="no-comments">还没有评论，快来抢沙发吧！</p>
                 ) : (
                     comments.map(comment => (
                         <div key={comment.id} className="comment-item">
-                            <img src={comment.avatar} alt={comment.userName} className="comment-avatar" />
+                            <img
+                              src={getAvatarUrl(comment.userAvatarId)}
+                              alt={comment.userNickname}
+                              className="comment-avatar"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).src = defaultAvatar; }}
+                            />
                             <div className="comment-body">
                                 <div className="comment-header">
-                                    <span className="comment-user">{comment.userName}</span>
+                                    <span className="comment-user">{comment.userNickname}</span>
                                     <span className="comment-date">{comment.createdAt}</span>
                                 </div>
                                 <p className="comment-content">{comment.content}</p>

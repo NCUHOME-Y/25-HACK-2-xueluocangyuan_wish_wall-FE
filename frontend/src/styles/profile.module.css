@@ -1,0 +1,101 @@
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background-image: none;
+    background: linear-gradient(180deg, rgba(192, 218, 235, 0.8) 0%, rgba(132, 195, 232, 0.8) 100%);
+}
+
+.container {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    position: relative;
+    flex-grow: 1;
+}
+
+.profile-image {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.title {
+    font-size: 2.25rem;
+    font-family: "title";
+    margin-top: 40px;
+    margin-bottom: 20px;
+    color: rgba(254, 255, 245, 1);
+}
+
+.nick-name {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 16px;
+}
+
+.label {
+    font-size: 1.25rem;
+    color: rgba(85, 108, 128, 1);
+    margin-left: 10px;
+}
+
+.nick-name input {
+    background: transparent;
+    border: none;
+}
+
+.profile-image img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.change-image {
+    margin-top: 0;
+    color: rgba(114, 144, 171, 1);
+    font-size: 1.25rem;
+    cursor: pointer;
+    background: rgba(114, 144, 171, 0.3);
+    border: 1px solid rgba(114, 144, 171, 1);
+    width: 176px;
+    height: 50px;
+}
+
+.back-button-container {
+    position: absolute;
+    top: 50px;
+    left: 20px;
+    z-index: 100;
+}
+
+.confirm-button {
+    margin-top: 30px;
+    font-size: 1.25rem;
+    color: rgba(85, 108, 128, 1);
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 16px;
+    cursor: pointer;
+    width: 230px;
+    padding: 10px 15px;
+}
+
+.profile-image-one {
+    border-radius: 50%;
+    margin-bottom: -50px;
+}
