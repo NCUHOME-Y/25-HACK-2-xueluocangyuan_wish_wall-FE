@@ -3,9 +3,12 @@
     top: 50vh;
     left: 50vw;
     transform: translate(-50%, -50%);
-    width: 50%;
+    width: 40%;
+    height: 60%;
     max-width: 800px;
-    background: rgba(132, 195, 232, 1);
+    background-image: url('@/assets/images/ModalBackground.jpg');
+    background-size: cover;
+    background-position: center;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -16,7 +19,6 @@
 .comment-item {
     display: flex;
     flex-direction: row;
-    margin-bottom: 20px;
     margin-left: 0;
     padding: 0 10px;
 }
@@ -37,15 +39,22 @@
 }
 
 .wish-content {
-    margin-left: 50px;
+    margin: 50px 50px;
     font-size: 2rem;
+    height: 100%;
     color: rgba(114, 140, 154, 1);
+    background: rgba(255, 255, 255, 0.75);
+    border: rgba(255, 255, 255, 0.75) 1px solid;
+    text-decoration: underline;
+    text-decoration-color: rgba(150, 190, 212, 1);
+    padding: 10px;
+    margin-top: 5px;
 }
 
 .interaction-bar {
-    margin-top: 20px;
+    margin-top: 30px;
     margin-right: 20px;
-    margin-left: 70px;
+    margin-left: 50px;
 }
 
 .interaction-bar button {
