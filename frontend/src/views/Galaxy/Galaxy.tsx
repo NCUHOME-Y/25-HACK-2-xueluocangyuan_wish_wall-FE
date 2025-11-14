@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 // 导入 wishService 和数据类型
 import { services, type Wish } from '../../services/wishService';
+ import BackButton from "@/components/common/BackButton.tsx";
+ import ProfileButton from "@/components/common/ProfileButton.tsx";
+ import snowflakeImg from "@/assets/images/雪花.svg";
+ import "@/styles/Galaxy.css"
 
 export const Galaxy = () => {
   // 用 useState 存储心愿列表
@@ -36,18 +40,22 @@ export const Galaxy = () => {
       mounted = false;
     };
   }, [page]);
-  //下面就交给你了，你看看我上面的const，看看哪些需要，哪些不需要
-  //我还没有搞循环滑动，现在只有一个hasMore判断是否还有数据，因为我们的判断是用户快滑动到下一页才读取数据
-  //我忘记设置处理点赞数，评论的变量了。这一部分我没有处理
-  //这好像是后面的工作 
   return (
-      <div className="galaxy-container">
-        {wishes.map((wish) => (
-          <div key={wish.id} className="wish-item">
-            {wish.content}
-          </div>
-        ))}
+    <div className="wish-list-container">
+      <div className="header">
+      <BackButton />
+      <h2 className="title">小雪心愿单</h2>
+      <ProfileButton />
       </div>
-    );
-};
+      <div className="wish-list">
+        <div className="wish-item">
+        <img src={snowflakeImg} alt="雪花" />
+        {/* 请雨木木替换为实际数据 */}
+        <span className="wish-content">何意味何意味何意味何意味</span>
+      </div>
+      </div>
+    </div>
+  );
+}
+
 export default Galaxy;
