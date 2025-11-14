@@ -1,65 +1,34 @@
-import { useState, type FormEvent, type KeyboardEvent } from "react";
-// 导入 wishService 和数据类型
-import { services } from '../../services/wishService'; // 引用 services 对象
-import Button from '@/components/common/Button.tsx'; 
-import '@/styles/WishForm.css'; 
+import { useState, type FormEvent } from "react";
+import { services } from '../../services/wishService';
+import { useUserStore } from '@/store/userStore';
+import Button from '@/components/common/Button.tsx';
+import '@/styles/wishModal.css';
 
-// 模拟一个简单的 Switch 组件
-const SimpleSwitch: React.FC<{ checked: boolean, onChange: (checked: boolean) => void, id?: string, label?: string }> = ({ checked, onChange, id, label }) => (
-    <label className="simple-switch" htmlFor={id}>
-        {label && <span className="sr-only">{label}</span>}
-        <input 
-            id={id}
-            type="checkbox" 
-            checked={checked} 
-            onChange={(e) => onChange(e.target.checked)} 
-            aria-label={label}
-        />
-        <span className="slider round" />
-    </label>
+const SimpleSwitch: React.FC<{ checked: boolean, onChange: (checked: boolean) => void }> = ({ checked, onChange }) => (
+  <label className="simple-switch">
+    <input 
+      type="checkbox" 
+      checked={checked} 
+      onChange={(e) => onChange(e.target.checked)} 
+    />
+    <span className="slider round" />
+  </label>
 );
 
-// 新增 onCancel 用于关闭 Modal
 interface WishFormProps {
-  onSuccess: () => void; // 提交成功后调用
-  onCancel: () => void; // 取消操作时调用
+  onSuccess: () => void;
+  onCancel: () => void;
 }
 
 export function WishForm({ onSuccess, onCancel }: WishFormProps) {
-  // 管理心愿状态
+  const { user } = useUserStore(); // 获取真实用户数据
   const [content, setContent] = useState<string>("");
   const [isPublic, setIsPublic] = useState<boolean>(true);
-  //标签输入框的内容
-  const [tag, setTag] = useState<string>("");
-  //已添加标签
-  const [tags, setTags] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-   const addTag = () => {
-    const t = tag.trim();
-    if (!t) return;
-    if (tags.includes(t)) {
-      setTag("");
-      return;
-    }
-    setTags(prev => [...prev, t]);
-    setTag("");
-  };
+  const togglePrivacy = () => setIsPublic(prev => !prev);
 
-  const handleTagKey = (e: KeyboardEvent<HTMLInputElement>) => {
-    // 允许使用 Enter, 英文逗号, 中文逗号添加标签
-    if (e.key === "Enter" || e.key === "," || e.key === "，") {
-      e.preventDefault();
-      addTag();
-    }
-  };
-
-  const removeTag = (t: string) => {
-    setTags(prev => prev.filter(x => x !== t));
-  };
-
-  // 处理心愿提交
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (loading) return;
@@ -73,17 +42,11 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
     setLoading(true);
     setError(null);
     try {
-      // 调用 wishService.ts 中导出的 createWish 函数
-      await services.createWish(trimmed, isPublic, tags); 
-      
-      // 清空表单
+      await services.createWish(trimmed, isPublic, []);
       setContent("");
-      setTag("");
-      setTags([]);
-      
-      onSuccess(); // 成功后执行回调，关闭 Modal
+      setIsPublic(true);
+      onSuccess();
     } catch (err: any) {
-      // 错误处理
       setError(err?.message || "发布心愿失败");
     } finally {
       setLoading(false);
@@ -93,14 +56,24 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
   return (
     <form onSubmit={handleSubmit} className="wish-form">
       <div className="modal-header">
-        <div className="profile-information">
-          <span className="profile-nickname">NayyByte</span>
-        </div>
+        {/* 只在用户存在时渲染用户信息 */}
+        {user && (
+          <div className="profile-information">
+            <img 
+              src={`/api/avatars/${user.avatar_id}.svg`}
+              alt="头像" 
+              className="profile-image"
+              onError={(e) => {
+                e.currentTarget.src = '../assets/images/头像1.svg'; // 加载失败时使用默认头像
+              }}
+            />
+            <span className="profile-nickname">{user.nickname}</span>
+          </div>
+        )}
         <h4 className="modal-title">时遇小雪，请写下你此时的心愿。</h4>
       </div>
 
       <div className="form-group">
-        {/* 心愿内容输入区 */}
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -112,38 +85,14 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
         <div className="char-count">{content.length}/200</div>
       </div>
 
-      <div className="form-group tag-input-group">
-        <label htmlFor="tag-input" className="tag-label">心愿标签：</label>
-        {/* 标签展示区 */}
-        <div className="tags-display">
-          {tags.map((t) => (
-            <span key={t} className="tag-item">
-              {t}
-              <button 
-                type="button" 
-                onClick={() => removeTag(t)} 
-                className="remove-tag-button"
-              >
-                &times;
-              </button>
-            </span>
-          ))}
-        </div>
-        {/* 标签输入框 */}
-        <input
-          id="tag-input"
-          type="text"
-          value={tag}
-          onChange={(e) => setTag(e.target.value)}
-          onKeyDown={handleTagKey}
-          placeholder="输入标签，按回车/逗号添加"
-          className="tag-input"
-        />
-      </div>
-
       <div className="form-group privacy-toggle">
-        <label className="privacy-label">公开/仅自己可见</label>
-        {/* 公开/私有切换开关 */}
+        <Button 
+          text={isPublic ? "设为私密" : "设为公开"}
+          onClick={togglePrivacy}
+          type="button"
+          className="privacy-button"
+          disabled={loading}
+        />
         <SimpleSwitch checked={isPublic} onChange={setIsPublic} />
         <span className="privacy-status">
           {isPublic ? '公开可见' : '仅自己可见'}
