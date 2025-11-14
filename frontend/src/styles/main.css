@@ -1,15 +1,8 @@
-/* 全局重置与继承 */
 *,
 *::before,
 *::after {
     box-sizing: border-box;
     font-family: inherit;
-}
-
-/* 文档级设置 */
-html {
-    font-size: 16px;
-    scroll-behavior: smooth; /* 平滑滚动 */
 }
 
 html,
@@ -19,157 +12,44 @@ body {
     padding: 0;
 }
 
-/* 元素重置 */
-h1, h2, h3, h4, h5, h6, 
-p, figure, dl, dd, blockquote {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+figure,
+dl,
+dd,
+blockquote {
     margin: 0;
     padding: 0;
 }
 
-ul, ol {
+ul,
+ol {
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
-img, svg {
+img,
+svg {
     max-width: 100%;
     display: block;
-    height: auto; /* 防止图片变形 */
 }
 
-input, button, select, textarea {
+input,
+button,
+select,
+textarea {
     font-family: inherit;
-    font-size: inherit;
-    outline: none;
-    border: none;
 }
 
-/* 主题变量 */
-:root {
-    --primary-color: #4A90E2;
-    --text-primary: #2C3E50;
-    --text-secondary: #7B8D9C;
-    --bg-overlay: rgba(255, 255, 255, 0.85);
-    --border-radius: 12px;
-    --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* 主体样式 - 带移动端优化 */
 body {
-    /* 背景图 - 支持多种分辨率 */
-    background-image: url('@/assets/images/background.jpg'); 
-    background-size: 100% 100%;
+    background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    
-    /* 文字颜色确保在背景上可见 */
-    color: var(--text-primary);
-    line-height: 1.5;
-    
-    /* 最低高度确保背景铺满 */
-    min-height: 100vh;
-    min-height: -webkit-fill-available;
-}
-
-/* 背景遮罩增强可读性 */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-        to bottom,
-        rgba(255, 255, 255, 0.3) 0%,
-        rgba(245, 249, 255, 0.5) 100%
-    );
-    z-index: -1;
-    pointer-events: none;
-}
-
-/* 页面切换动画（用于路由切换）*/
-.page-enter {
-    opacity: 0;
-    transform: translateY(20px);
-}
-
-.page-enter-active {
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-/* 响应式断点 - 移动端优先 */
-/* 平板 */
-@media (min-width: 768px) {
-    html {
-        font-size: 18px;
-    }
-    
-    body {
-        background-position: top center;
-    }
-}
-
-/* 桌面端 */
-@media (min-width: 1024px) {
-    html {
-        font-size: 20px;
-    }
-
-    body {
-        background-position: top center;
-        background-attachment: scroll;
-    }
-}
-
-/* 移动端优化 */
-@media (max-width: 767px) {
-    body {
-        /* 解决iOS底部安全区域问题 */
-        padding-bottom: env(safe-area-inset-bottom);
-    }
-    
-    /* 背景图固定在某些移动端会有性能问题 */
-    body {
-        background-attachment: scroll;
-    }
-}
-
-/* 辅助类 */
-.sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-}
-
-.text-center { text-align: center; }
-.flex-center {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* 触摸反馈 */
-@media (hover: none) {
-    * {
-        cursor: pointer; /* 移动端统一点击体验 */
-    }
-}
-
-/* 字体设置 */
-@font-face {
-    font-family: 'title';
-    src: url('../assets/font/titleFont.ttf') format(truetype);
-    font-display: swap;
-    font-weight: 400;
 }
