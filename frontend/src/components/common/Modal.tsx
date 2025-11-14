@@ -4,13 +4,14 @@ import Button from './Button.tsx';
 
 interface ModalProps {
     visible: boolean;
+    style?: React.CSSProperties;
     title?: string;
     confirmText?: string;
+    className?: string;
     showCancelButton?: boolean;
     cancelText?: string;
     onCancel?: () => void;
     onConfirm?: () => void;
-    onClose: () => void;
     children: React.ReactNode;
 }
 
@@ -18,11 +19,7 @@ const Modal = ({
     visible,
     title,
     confirmText='确定',
-    showCancelButton=true,
-    cancelText='取消',
-    onCancel,
     onConfirm,
-    onClose,
     children
 }: ModalProps) => {
     if (!visible) {
@@ -53,16 +50,12 @@ const Modal = ({
                     {title && (
                     <h1 className="modal-title">{title}</h1>
                     )}
-                    <Button className="modal-close" onClick={onClose} icon="@/assets/images/closeButton.svg" />
                 </div>
                 <div className="modal-body">{children}</div>
                 <div className="modal-footer">
                     {onConfirm && (
                     <Button className="modal-confirm" onClick={onConfirm} text={confirmText} />
                     )}
-                    {showCancelButton && (
-                    <Button className="modal-cancel" onClick={onCancel} text={cancelText} />
-                        )}
                 </div>
             </div>
         </div>,
