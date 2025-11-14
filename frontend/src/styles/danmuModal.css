@@ -1,0 +1,53 @@
+.wish-detail-modal {
+    position: fixed;
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    max-width: 800px;
+    background: rgba(132, 195, 232, 1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.user-information,
+.comment-item {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 20px;
+    margin-left: 0;
+    padding: 0 10px;
+}
+
+.avatar,
+.avatar-small {
+    width: 40px;
+    height: 40px;
+    margin-left: 5px;
+    border-radius: 50%;
+}
+
+.nickname {
+    margin-left: 10px;
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 1);
+    background: transparent;
+}
+
+.wish-content {
+    margin-left: 50px;
+    font-size: 2rem;
+    color: rgba(114, 140, 154, 1);
+}
+
+.interaction-bar {
+    margin-top: 20px;
+    margin-right: 20px;
+    margin-left: 70px;
+}
+
+.interaction-bar button {
+    border: none;
+}
