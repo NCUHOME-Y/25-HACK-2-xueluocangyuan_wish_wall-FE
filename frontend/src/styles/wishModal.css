@@ -1,132 +1,118 @@
 .wish-modal {
-  position: fixed;
-    top: 50vh;
-    left: 50vw;
-    transform: translate(-50%, -50%);
-    width: 50%;
-    max-width: 800px;
-    background: rgba(132, 195, 232, 1);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
-
-
-.modal-container {
-  position: relative !important;
-  width: 380px !important;
-  height: 520px !important;
-  background-color: #cceeff !important;
-  border-radius: 12px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
-  margin: 0 !important; 
-  padding: 0 !important;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-header {
-  position: absolute;
-  top: 24px;
-  left: 24px;
-  right: 24px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  z-index: 10;
-}
-
-.profile-image {
-  width: 48px;
-  height: 48px;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  background-color: #f0f0f0;
-}
-
-.profile-nickname {
-  font-size: 16px;
-  color: #333;
-  font-weight: 500;
-}
-
-.close-button {
-  margin-left: auto;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  width: 32px;
-  height: 32px;
-}
-
-.modal-content {
-  flex: 1;
-  margin: 90px 24px 80px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  font-size: 16px;
-  color: #333;
-}
-
-.modal-content input {
-  width: 100%;
-  padding: 16px;
-  font-size: 16px;
-  border: none;
-  border-bottom: 1px solid #fff;
   background: transparent;
-  outline: none;
-  margin-top: 20px;
-}
-
-.modal-actions-footer {
-  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  position: fixed;
+  z-index: 1000;
+  width: 100%;
+  height: 100%;
   display: flex;
-  gap: 30px;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.wish-form {
+  width: 40%;
+  height: 60%;
+  max-width: 800px;
+  background-image: url('@/assets/images/ModalBackground.jpg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.form-group {
+  background: rgba(255, 255, 255, 0.75);
+  border: rgba(255, 255, 255, 0.75) 1px solid;
+  width: 80%;
+  height: 90%;
+  margin: 20px;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.wish-content-text-area {
+  width: 80%;
+  border: rgba(255, 255, 255, 0.75) 1px solid;
+  padding: 10px;
+}
+
+textarea {
+  background: transparent;
+  border: none;
+  color: rgba(114, 140, 154, 1);
+  width: 100%;
+  height: 100%;
+  text-decoration: underline;
+  font-size: 1.25rem;
+  text-decoration-color: rgba(150, 190, 212, 1);
+}
+
+textarea:focus {
+  outline: none;
+}
+
+.profile-information {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  margin-top: 10px;
+}
+
+.profile-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.submit-button,
+.cancel-button {
+  background: rgba(132, 195, 232, 1);
+  color: rgba(254, 255, 245, 1);
+  border: 0.5px solid rgba(254, 255, 245, 1);
+  border-radius: 8px;
+  margin-left: 10px;
+  width: 130px;
+  height: 40px;
 }
 
 .modal-actions {
-  position: absolute;
-  bottom: 20px;
-  left: 24px;
-  right: 24px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  margin-top: 20px;
 }
 
-.like-button,
-.comment-button,
-.cancel-button,
-.submit-wish-button {
-  padding: 8px 24px;
-  font-size: 14px;
-  border-radius: 20px;
-  border: 1px solid #fff;
+.privacy-button-group {
   background: transparent;
-  color: #333;
+  margin-left: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+}
+
+.privacy-button {
+  border: rgba(255, 255, 255, 1) 1px solid;
+  background: transparent;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
   cursor: pointer;
-  transition: all 0.3s;
+  margin-right: 10px;
+  margin-bottom: 10px;
 }
 
-.cancel-button {
-    background: linear-gradient(90deg, rgba(192, 218, 235, 1) 0%, rgba(132, 195, 232, 1) 100%);
-}
-
-.submit-wish-button {
-  background: linear-gradient(90deg, rgba(192, 218, 235, 1) 0%, rgba(132, 195, 232, 1) 100%);
-  font-weight: 500;
-}
-
-@media (max-width: 480px) {
-  .modal-container {
-    width: 90vw !important;
-    height: 70vh !important;
-  }
+.privacy-status {
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 1);
 }
