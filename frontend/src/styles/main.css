@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 /* 全局重置与继承 */
->>>>>>> ec7c17cd801e9dd850b4e2a778bf2a3a4048a81f
 *,
 *::before,
 *::after {
@@ -9,15 +6,12 @@
     font-family: inherit;
 }
 
-<<<<<<< HEAD
-=======
 /* 文档级设置 */
 html {
     font-size: 16px;
     scroll-behavior: smooth; /* 平滑滚动 */
 }
 
->>>>>>> ec7c17cd801e9dd850b4e2a778bf2a3a4048a81f
 html,
 body {
     height: 100%;
@@ -25,58 +19,19 @@ body {
     padding: 0;
 }
 
-<<<<<<< HEAD
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p,
-figure,
-dl,
-dd,
-blockquote {
-=======
 /* 元素重置 */
 h1, h2, h3, h4, h5, h6, 
 p, figure, dl, dd, blockquote {
->>>>>>> ec7c17cd801e9dd850b4e2a778bf2a3a4048a81f
     margin: 0;
     padding: 0;
 }
 
-<<<<<<< HEAD
-ul,
-ol {
-=======
 ul, ol {
->>>>>>> ec7c17cd801e9dd850b4e2a778bf2a3a4048a81f
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
-<<<<<<< HEAD
-img,
-svg {
-    max-width: 100%;
-    display: block;
-}
-
-input,
-button,
-select,
-textarea {
-    font-family: inherit;
-}
-
-body {
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-=======
 img, svg {
     max-width: 100%;
     display: block;
@@ -217,5 +172,4 @@ body::before {
     src: url('../assets/font/titleFont.ttf') format(truetype);
     font-display: swap;
     font-weight: 400;
->>>>>>> ec7c17cd801e9dd850b4e2a778bf2a3a4048a81f
 }

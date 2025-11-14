@@ -50,7 +50,6 @@ export const Galaxy = () => {
       <div className="wish-list">
         <div className="wish-item">
         <img src={snowflakeImg} alt="雪花" />
-        {/* 请雨木木替换为实际数据 */}
         <span className="wish-content">何意味何意味何意味何意味</span>
       </div>
       </div>

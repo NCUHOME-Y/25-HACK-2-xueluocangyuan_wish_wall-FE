@@ -137,7 +137,7 @@ interface AddCommentPayload {
 }
 
 // 定义 'POST 评论愿望' 成功后 data 字段的类型
-interface Comment {
+export interface wishComment {
   id: number;
   userId: number;
   userNickname: string;
@@ -153,11 +153,11 @@ interface Comment {
 export const addComment = async (
   wishId: number,
   content: string
-): Promise<Comment> => {
+): Promise<wishComment> => {
 
   const payload: AddCommentPayload = { content };
 
-  const response = await apiClient.post<ApiResponse<Comment>>(
+  const response = await apiClient.post<ApiResponse<wishComment>>(
     `/api/wishes/${wishId}/comment`,
     payload
   );
@@ -207,7 +207,7 @@ interface PaginationInfo {
 
 // 定义评论信息类型
 interface CommentsInfo {
-  list: Comment[];
+  list: wishComment[];
   pagination: PaginationInfo;
 }
 

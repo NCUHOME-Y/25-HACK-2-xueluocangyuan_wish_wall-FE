@@ -25,7 +25,6 @@ const Profile = ({
         setNickNameValue(e.target.value);
     }
 
-    // 确定更改并将数据同步到后端的任务就交给雨木木了
 
     return (
         <div className={styles.container}>

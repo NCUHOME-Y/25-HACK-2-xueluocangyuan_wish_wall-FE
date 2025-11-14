@@ -1,15 +1,11 @@
-<<<<<<< HEAD
 body {
     background-image: url("@/assets/images/background.jpg")
 }
 
-=======
->>>>>>> ec7c17cd801e9dd850b4e2a778bf2a3a4048a81f
 .wish-list-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-<<<<<<< HEAD
     justify-content: center;
     height: 100vh;
 }
@@ -19,37 +15,10 @@ body {
     margin-bottom: clamp(30px, 90vh, 60px);
     font-family: 'title';
     color: rgba(254, 255, 245, 1);
-=======
-    justify-content: flex-start; 
-    height: 100vh;
-    padding-top: 20px; 
-    box-sizing: border-box; 
-}
-
-.header { 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative; 
-    padding: 20px 0; 
-    width: 80%; 
-    margin-bottom: 30px; 
-    color: rgba(254, 255, 245, 1);
-    font-family: 'title';
-    font-size: 1.8rem; 
-}
-
-.title {
-    font-size: 1.8rem; 
-    color: rgba(254, 255, 245, 1);
-    font-family: 'title';
-    margin-bottom: 0; 
->>>>>>> ec7c17cd801e9dd850b4e2a778bf2a3a4048a81f
 }
 
 .wish-list {
     display: flex;
-<<<<<<< HEAD
     justify-content: center;
     align-items: center;
     flex-direction: row;
@@ -58,48 +27,10 @@ body {
 .wish-list img {
     width: 48px;
     height: 48px;
-=======
-    flex-direction: column; 
-    align-items: center; 
-    width: 80%; 
-}
-
-.wish-item { 
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 20px; 
-    width: 100%; 
-}
-
-.wish-list img {
-    width: 40px; 
-    height: 40px; 
-    margin-right: 15px;
-    background: transparent;
->>>>>>> ec7c17cd801e9dd850b4e2a778bf2a3a4048a81f
 }
 
 .wish-content {
     background: rgba(240, 251, 252, 0.8);
-<<<<<<< HEAD
     border-radius: clamp(8px, 2vw, 24px);
     padding: 10px;
 }
-=======
-    border-radius: 8px; 
-    padding: 12px 15px; 
-    width: 100%; 
-    box-sizing: border-box; 
-    font-size: 1rem;
-    color: #333;
-    border: none; 
-}
-
-.back-button {
-    position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-}
->>>>>>> ec7c17cd801e9dd850b4e2a778bf2a3a4048a81f

@@ -24,7 +24,7 @@ const WishDanmu = ({
     baseVelocity = -50, // 默认向左滚动
     onDanmuClick,
     onAnimationComplete,
-    trackIndex
+  //  trackIndex
 }: WishDanmuProps) => {
     const { wishContent } = data;
     const displayContent = wishContent.length > MAX_CHARS
