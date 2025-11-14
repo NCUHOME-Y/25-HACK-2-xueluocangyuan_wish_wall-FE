@@ -94,6 +94,5 @@ function Galaxy() {
       </div>
     </div>
   );
-}
-
+};
 export default Galaxy;

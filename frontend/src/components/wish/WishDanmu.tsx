@@ -1,6 +1,6 @@
 // 导入必要的模块 
 import { useRef, useEffect, useState } from 'react';
-import snowflakeImg from '@/assets/images/雪花.svg';
+import snowflakeImg from '@/assets/images/snowflake.svg';
 
 // 定义单条弹幕的数据结构 
 export interface DanmuData {
