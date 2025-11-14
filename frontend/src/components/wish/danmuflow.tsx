@@ -6,7 +6,7 @@ import '@/styles/wishModal.css';
 import commentButton from '@/assets/images/commentButton.svg';
 import dislike from '@/assets/images/dislikeButton.svg';
 import like from '@/assets/images/likeButton.svg'; 
-import { likeWish, addComment, getWishInteractions } from '@/services/wishService';
+import { addComment, getWishInteractions } from '@/services/wishService';
 import { type Wish } from '@/services/wishService';
 import type { Comment } from '@/services/wishService.ts'; 
 import Button from '@/components/common/Button.tsx';
@@ -15,6 +15,10 @@ interface DanmuFlowProps {
   wishes: Wish[];
   loading: boolean;
   onDataChange: () => void;
+}
+
+interface WishWithLiked extends Wish {
+  isLiked: boolean;
 }
 
 function isAbortError(error: unknown): error is DOMException {
@@ -27,7 +31,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
   
   // 弹窗状态
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalWish, setModalWish] = useState<Wish | null>(null);
+  const [modalWish, setModalWish] = useState<WishWithLiked | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentInput, setCommentInput] = useState('');
   const [isLiking, setIsLiking] = useState(false);
@@ -44,21 +48,18 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
     const controller = new AbortController();
     abortControllerRef.current = controller;
     
-    setModalWish(wish);
-    setIsModalOpen(true);
-    setShowComments(false); // 新增：打开弹窗时隐藏评论区
-    
     try {
       // 加载评论列表
       const interactions = await getWishInteractions(wish.id);
 
-      const enhancedWish : Wish = {
+      const enhancedWish : WishWithLiked = {
          ...wish,
          isLiked: interactions.likes.currentUserLiked,
       };
 
       setModalWish(enhancedWish);
       setIsModalOpen(true);
+      setShowComments(false);// 隐藏评论区
 
       const commentsData = interactions.comments.list.map(comment => ({
          ...comment,
@@ -94,13 +95,15 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
     
     setIsLiking(true);
     try {
-      const result = await likeWish(modalWish.id);
       // 更新本地状态
-      setModalWish(prev => prev ? { ...prev, isLiked: true } : null);
+      setModalWish(prev => prev ? {
+        ...prev,
+        isLiked: true,
+        likeCount: prev.likeCount + 1,
+      } : null);
       onDataChange(); // 通知父组件刷新
     } catch (err) {
       console.error('点赞失败:', err);
-      alert('操作失败，请重试');
     } finally {
       setIsLiking(false);
     }
@@ -217,7 +220,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
             {/* 修改：评论区整块条件渲染 */}
             {showComments && (
               <div className="comments-section">
-                <h4>💬 评论区</h4>
+                <h4>评论区</h4>
                 
                 {/* 发表评论 */}
                 <div className="comment-input-wrapper">
