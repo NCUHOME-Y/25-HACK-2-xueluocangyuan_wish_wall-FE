@@ -12,10 +12,12 @@ import { type Wish } from '@/services/wishService';
 import Button from '@/components/common/Button.tsx';
 import { getAvatarUrl } from '@/utils/avatar';
 import closeIcon from '@/assets/images/closeButton.svg';
+import { useUserStore } from '@/store/userStore';
 
 // 本地定义评论类型，匹配服务端返回字段
 type WishComment = {
   id: number;
+  userId?: number;
   userNickname: string;
   userAvatarId: number;
   userAvatarUrl?: string;
@@ -52,6 +54,8 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
   const [isLiking, setIsLiking] = useState(false);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [deletingCommentId, setDeletingCommentId] = useState<number | null>(null);
+  const user = useUserStore(s => s.user);
+  const currentUserId = Number((user as any)?.id ?? (user as any)?.userId ?? (user as any)?.uid ?? 0);
 
   // 新增：控制评论区显隐状态
   const [showComments, setShowComments] = useState(false);
@@ -86,14 +90,25 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
         .filter((c: any) => c && typeof c === 'object')
         .map((c: any) => ({
           id: Number(c.id) || 0,
-          userNickname: String(c.userNickname || '匿名用户'),
+          userId: Number((c as any).userId ?? (c as any).uid ?? (c as any).user_id ?? ((c as any).user && (c as any).user.id) ?? 0),
+          userNickname: String(
+            (c as any).userNickname || (c as any).userNickName || (c as any).nickname || (c as any).nickName || (c as any).user_name ||
+            ((c as any).user && ((c as any).user.nickname || (c as any).user.nickName)) || '匿名用户'
+          ),
           userAvatarId: typeof (c as any).userAvatarId === 'number' ? (c as any).userAvatarId : 0,
-          userAvatarUrl: typeof (c as any).userAvatar === 'string' ? (c as any).userAvatar :
+          userAvatarUrl: (c as any).userAvatarUrl ? (c as any).userAvatarUrl : (typeof (c as any).userAvatar === 'string' ? (c as any).userAvatar :
             (typeof (c as any).userAvatarId === 'string' ? (c as any).userAvatarId :
-              (typeof (c as any).avatar_id === 'string' ? (c as any).avatar_id : undefined)),
+              (typeof (c as any).avatar_id === 'string' ? (c as any).avatar_id : undefined))),
           content: String(c.content || ''),
           createdAt: c.createdAt || new Date().toISOString(),
-          isOwn: Boolean((c as any).isOwn || (c as any).mine || (c as any).own || false),
+          isOwn: Boolean(
+            (c as any).isOwn || (c as any).mine || (c as any).own ||
+            (currentUserId ? (Number((c as any).userId ?? (c as any).uid ?? (c as any).user_id ?? ((c as any).user && (c as any).user.id) ?? 0) === currentUserId) : false) ||
+            ((user?.nickname && typeof user.nickname === 'string') ? (String(
+              (c as any).userNickname || (c as any).userNickName || (c as any).nickname || (c as any).nickName || (c as any).user_name ||
+              ((c as any).user && ((c as any).user.nickname || (c as any).user.nickName)) || ''
+            ) === user.nickname) : false)
+          ),
         }));
       setComments(commentsData);
       setShowComments(commentsData.length > 0);
@@ -344,7 +359,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
                             text={deletingCommentId === comment.id ? '删除中...' : '删除'}
                             onClick={() => handleDeleteComment(comment.id)}
                             disabled={deletingCommentId === comment.id}
-                            className="delete-comment-button" 
+                            className="delete-comment-button"
                           />
                         )}
                       </div>

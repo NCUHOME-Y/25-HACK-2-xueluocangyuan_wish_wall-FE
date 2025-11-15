@@ -4,6 +4,7 @@ import { services, type Wish } from '../../services/wishService';
 import BackButton from '@/components/common/BackButton.tsx';
 // 移除右上角个人心愿跳转按钮
 import { getAvatarUrl } from '@/utils/avatar';
+import snowflake from '@/assets/images/雪花.svg';
 import '@/styles/Galaxy.css';
 import commentButton from '@/assets/images/commentButton.svg';
 
@@ -103,7 +104,7 @@ export const Galaxy = () => {
         <ul className="wish-list">
           {wishes.map(w => (
             <li key={w.id} className="wish-item">
-              <img src={(w as any).avatarUrl ? (w as any).avatarUrl : getAvatarUrl(w.avatarId)} alt={w.nickname} className="wish-avatar" />
+              <img src={snowflake} alt={w.nickname} className="wish-avatar" />
               <div className="wish-main">
                 <div className="wish-header">
                   <span className="wish-time">{new Date(w.createdAt).toLocaleDateString()}</span>
@@ -171,7 +172,7 @@ export const Galaxy = () => {
                         <div className="galaxy-comments-status empty">暂无评论</div>
                       ) : (
                         commentsMap[w.id]!.list.map(c => (
-                          <div key={c.id} className="comment-item">
+                          <div key={c.id} className={`comment-item ${c.isOwn ? 'own' : ''}`}>
                             <img src={(c as any).userAvatarUrl ? (c as any).userAvatarUrl : getAvatarUrl(c.userAvatarId)} alt="头像" className="avatar-small" />
                             <div className="comment-body">
                               <span className="comment-author">{c.userNickname}</span>
