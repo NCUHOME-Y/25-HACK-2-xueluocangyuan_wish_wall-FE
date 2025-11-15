@@ -10,6 +10,7 @@ import Register from "../views/Auth/Register";
 import PublicFeed from "../views/PublicFeed/PublicFeed";
 import Galaxy from "../views/Galaxy/Galaxy";
 import Profile from "../views/Profile/Profile";
+import ProfileImage from "../views/Profile/ProfileImage";
 // 创建路由守卫
 const ProtectedRoutes = () => {
   const token = useUserStore((state) => state.token);
@@ -42,8 +43,8 @@ const router = createBrowserRouter([
           { index: true, element: <PublicFeed /> },
           { path: "publicfeed", element: <PublicFeed /> },
           { path: "galaxy", element: <Galaxy /> },
-          { path: "profile", element: <Profile profileImage="" nickName="" /> },
-          {path: "profileImage", element: <Profile profileImage="" nickName="" /> },
+          { path: "profile", element: <Profile /> },
+          { path: "profileImage", element: <ProfileImage /> },
         ],
       },
     ],

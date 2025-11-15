@@ -41,19 +41,47 @@ interface ApiResponse<T> {
 }
 
 //获取个人许愿列表
+// 统一规范化后端字段，兼容 snake_case / 变动字段名
+function normalizeWish(raw: any): Wish {
+  return {
+    id: Number(raw?.id ?? raw?.wishId ?? 0),
+    content: String(raw?.content ?? raw?.wishContent ?? ''),
+    isPublic: Boolean(raw?.isPublic ?? raw?.public ?? raw?.visibility === 'public'),
+    tags: Array.isArray(raw?.tags) ? raw.tags.map((t: any) => String(t)) : [],
+    likeCount: Number(raw?.likeCount ?? raw?.like_count ?? raw?.likes ?? 0),
+    commentCount: Number(raw?.commentCount ?? raw?.comment_count ?? raw?.comments ?? 0),
+    createdAt: String(raw?.createdAt ?? raw?.created_at ?? raw?.create_time ?? new Date().toISOString()),
+    nickname: String(raw?.nickname ?? raw?.userNickname ?? raw?.user_name ?? '匿名'),
+    avatarId: Number(raw?.avatarId ?? raw?.avatar_id ?? raw?.avatar ?? 0),
+    isOwn: Boolean(raw?.isOwn ?? raw?.mine ?? raw?.own ?? false),
+  };
+}
+
+// 解析列表数据的通用函数
+function extractWishArray(data: any): any[] {
+  if (!data) return [];
+  return (
+    data.wishes ||
+    data.list ||
+    data.records ||
+    data.items ||
+    []
+  );
+}
+
 export const getMyWishes = async (
   page: number = 1,
   pageSize: number = 20
 ): Promise<WishListResponse> => {
-  //apiClient自动附加Token
-  //响应体已经过拦截器处理，直接返回data字段
-  const res = await apiClient.get<ApiResponse<WishListData>,ApiResponse<WishListData>>("/wishes/me", {
-    params: {
-      page,
-      pageSize
-    }
+  const res = await apiClient.get<ApiResponse<WishListData>, ApiResponse<WishListData>>("/wishes/me", {
+    params: { page, pageSize }
   });
-  const { wishes, page: p, pageSize: s, total } = res.data;
+  const d: any = res.data || {};
+  const rawList = extractWishArray(d);
+  const wishes = rawList.filter((w: any) => w && typeof w === 'object').map(normalizeWish);
+  const p = Number(d.page ?? d.pageNum ?? d.currentPage ?? page);
+  const s = Number(d.pageSize ?? d.size ?? pageSize);
+  const total = Number(d.total ?? d.totalCount ?? rawList.length);
   return {
     wishes,
     pagination: {
@@ -69,13 +97,15 @@ export const getPublicWishes = async (
   page: number = 1,
   pageSize: number = 20
 ): Promise<WishListResponse> => {
-  const res = await apiClient.get<ApiResponse<WishListData>,ApiResponse<WishListData>>("/wishes/public", {
-    params: { 
-      page,
-      pageSize
-    }
+  const res = await apiClient.get<ApiResponse<WishListData>, ApiResponse<WishListData>>("/wishes/public", {
+    params: { page, pageSize }
   });
-  const { wishes, page: p, pageSize: s, total } = res.data;
+  const d: any = res.data || {};
+  const rawList = extractWishArray(d);
+  const wishes = rawList.filter((w: any) => w && typeof w === 'object').map(normalizeWish);
+  const p = Number(d.page ?? d.pageNum ?? d.currentPage ?? page);
+  const s = Number(d.pageSize ?? d.size ?? pageSize);
+  const total = Number(d.total ?? d.totalCount ?? rawList.length);
   return {
     wishes,
     pagination: {
@@ -223,12 +253,15 @@ interface WishInteractionsResponse {
 export const getWishInteractions = async (
   wishId: number
 ): Promise<WishInteractionsResponse> => {
-  
   const response = await apiClient.get<ApiResponse<WishInteractionsResponse>, ApiResponse<WishInteractionsResponse>>(
     `/wishes/${wishId}/interactions`
   );
-  
-  return response.data;
+  const data = response.data;
+  // 规范 wishInfo（防止字段名不一致导致 likeCount 不刷新）
+  if (data?.wishInfo) {
+    data.wishInfo = normalizeWish(data.wishInfo as any) as Wish;
+  }
+  return data;
 };
 
 //统一导出

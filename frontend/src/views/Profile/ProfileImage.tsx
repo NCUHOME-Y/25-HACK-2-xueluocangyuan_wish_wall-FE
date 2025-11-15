@@ -8,6 +8,9 @@ import profileImageSix from "@/assets/images/头像6.svg";
 import BackButton from "@/components/common/BackButton";
 import styles from "@/styles/profileImage.module.css"
 import Button from '@/components/common/Button';
+import { useUserStore } from '@/store/userStore';
+import { userService } from '@/services/userService';
+import { useNavigate } from 'react-router-dom';
 
 // 创建一个头像数据数组，包含 ID 和路径，方便管理和映射
 const profileImages = [
@@ -20,8 +23,15 @@ const profileImages = [
 ];
 
 function ProfileImage() {
-    // 使用状态来存储当前选中的头像ID，默认不选中（null）
-    const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
+    const navigate = useNavigate();
+    const user = useUserStore((s) => s.user);
+    const setUser = useUserStore((s) => s.setUser);
+    // 初始选中当前头像（若有）
+    const [selectedImageId, setSelectedImageId] = useState<string | null>(
+        user?.avatar_id != null ? String(user.avatar_id) : null
+    );
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     // 处理头像点击事件
     const handleImageClick = (id: string) => {
@@ -30,10 +40,25 @@ function ProfileImage() {
     };
 
     // 处理确认按钮点击事件
-    const handleConfirm = () => {
-        if (selectedImageId) {
-            // 调用API处理更换头像
-            console.log(`用户选择了头像 ID: ${selectedImageId}，准备更换头像...`);
+    const handleConfirm = async () => {
+        if (!selectedImageId) return;
+        const newId = Number(selectedImageId);
+        // 未变化则直接返回到 PublicFeed
+        if (user?.avatar_id === newId) {
+            navigate('/');
+            return;
+        }
+        try {
+            setSaving(true);
+            setError(null);
+            const updated = await userService.updateUserProfile({ avatar_id: newId });
+            setUser(updated as any);
+            // 成功后按期望返回到 PublicFeed
+            navigate('/');
+        } catch (err: any) {
+            setError(err?.msg || err?.message || '更新头像失败');
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -45,11 +70,13 @@ function ProfileImage() {
                 </div>
                 <h1 className={styles.title}>选择头像</h1>
                 <Button
-                    text="确认"
+                    text={saving ? '保存中...' : '确认'}
                     className={styles.confirmButton}
                     onClick={handleConfirm}
+                    disabled={saving || !selectedImageId}
                 />
             </div>
+            {error && <div className={styles['error-message']}>{error}</div>}
             <div className={styles.images}>
                 {profileImages.map((image) => (
                     <img 

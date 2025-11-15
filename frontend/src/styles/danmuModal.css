@@ -1,62 +1,160 @@
+/* 弹幕详情弹窗：仅在 Modal 内部生效，避免影响弹幕区域 */
 .wish-detail-modal {
-    position: fixed;
-    top: 50vh;
-    left: 50vw;
-    transform: translate(-50%, -50%);
-    width: 40%;
-    height: 60%;
-    max-width: 800px;
-    background-image: url('@/assets/images/ModalBackground.jpg');
+    width: clamp(280px, 92vw, 560px);
+    max-height: 80vh;
+    overflow: auto;
+    padding: 14px;
+    border-radius: 16px;
+    background-image: url('../assets/images/ModalBackground.jpg');
     background-size: cover;
     background-position: center;
     display: flex;
-    justify-content: center;
-    align-items: center;
     flex-direction: column;
 }
 
-.user-information,
-.comment-item {
+.wish-detail-modal .user-info,
+.wish-detail-modal .comment-item {
     display: flex;
     flex-direction: row;
     margin-left: 0;
     padding: 0 10px;
 }
 
-.avatar,
-.avatar-small {
+.wish-detail-modal .avatar,
+.wish-detail-modal .avatar-small {
     width: 40px;
     height: 40px;
     margin-left: 5px;
     border-radius: 50%;
 }
 
-.nickname {
+.wish-detail-modal .nickname {
     margin-left: 10px;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     color: rgba(255, 255, 255, 1);
     background: transparent;
 }
 
-.wish-content {
-    margin: 50px 50px;
-    font-size: 2rem;
-    height: 100%;
+.wish-detail-modal .wish-content {
+    margin: 12px 10px;
+    font-size: 1.125rem;
+    min-height: 80px;
     color: rgba(114, 140, 154, 1);
-    background: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.78);
     border: rgba(255, 255, 255, 0.75) 1px solid;
     text-decoration: underline;
     text-decoration-color: rgba(150, 190, 212, 1);
     padding: 10px;
-    margin-top: 5px;
+    border-radius: 12px;
 }
 
-.interaction-bar {
-    margin-top: 30px;
-    margin-right: 20px;
-    margin-left: 50px;
+.wish-detail-modal .interaction-bar {
+    margin: 12px 10px 0 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
 }
 
-.interaction-bar button {
+.wish-detail-modal .interaction-bar button {
     border: none;
+    background: transparent;
+}
+
+.wish-detail-modal .comments-section {
+    background: rgba(187, 215, 242, 1);
+    border-radius: 16px 16px 0px 0px;
+}
+
+.wish-detail-modal .comment-input-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px;
+}
+
+.wish-detail-modal .comment-input-wrapper input {
+    background: rgba(255, 255, 255, 1);
+    border: none;
+    border-radius: 16px;
+    padding: 10px;
+    flex: 1;
+}
+
+.wish-detail-modal .comment-input-wrapper input:focus {
+    outline: none;
+}
+
+.wish-detail-modal .comment-input-wrapper input::placeholder {
+    font-size: 1rem;
+    color: rgba(26, 26, 26, 1);
+}
+
+.wish-detail-modal .send-button {
+    background: transparent;
+    border: 1px solid rgba(109, 144, 176, 1);
+    font-size: 1rem;
+    color: rgba(109, 144, 176, 1);
+    border-radius: 16px;
+    padding: 10px 14px;
+    cursor: pointer;
+}
+
+.wish-detail-modal .action-button.like-button,
+.wish-detail-modal .action-button.comment-button {
+    background: transparent;
+    border: none;
+}
+
+.wish-detail-modal .comment-item {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.wish-detail-modal .comments-list {
+    width: 100%;
+    max-height: 38vh;
+    overflow-y: auto;
+}
+
+/* 关闭按钮样式，仅作用于弹窗内部 */
+.wish-detail-modal .close-button {
+    margin-left: auto;
+    background: transparent;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+}
+
+.wish-detail-modal .close-button .icon-image {
+    width: 20px;
+    height: 20px;
+}
+
+/* 小屏优化 */
+@media (max-width: 480px) {
+    .wish-detail-modal {
+        width: 92vw;
+        max-height: 76vh;
+        padding: 12px;
+    }
+
+    .wish-detail-modal .nickname {
+        font-size: 1.125rem;
+    }
+
+    .wish-detail-modal .wish-content {
+        font-size: 1rem;
+        margin: 10px;
+    }
+
+    .wish-detail-modal .comment-input-wrapper {
+        flex-direction: column;
+    }
+
+    .wish-detail-modal .send-button {
+        width: 100%;
+    }
 }

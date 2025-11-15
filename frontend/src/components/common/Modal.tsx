@@ -12,6 +12,7 @@ interface ModalProps {
     cancelText?: string;
     onCancel?: () => void;
     onConfirm?: () => void;
+    onClose?: () => void; // 兼容传入但不改变现有行为
     children: React.ReactNode;
 }
 
@@ -46,8 +47,22 @@ const Modal = ({
     // 确定挂载的DOM节点
     const portalRoot = document.getElementById('modal-root') || document.body;
 
+    const overlayStyle: React.CSSProperties = {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+    };
+
     return ReactDOM.createPortal(
-        <div className="modal-overlay">
+        <div className="modal-overlay" style={overlayStyle}>
             <div
                 className={`modal ${title ? 'has-title' : ''}`}
                 onClick={(e) => e.stopPropagation()}

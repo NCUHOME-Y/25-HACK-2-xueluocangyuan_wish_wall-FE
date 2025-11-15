@@ -41,6 +41,18 @@ function PublicFeed() {
     fetchWishes();
   };
 
+  // 局部更新（无需等待后端刷新即可在列表中看到点赞/评论变化）
+  const handleWishPatch = useCallback((patch: { id: number; likeCount?: number; commentCount?: number; isLiked?: boolean }) => {
+    setWishes(prev => prev.map(w => {
+      if (w.id !== patch.id) return w;
+      return {
+        ...w,
+        likeCount: patch.likeCount !== undefined ? patch.likeCount : w.likeCount,
+        commentCount: patch.commentCount !== undefined ? patch.commentCount : w.commentCount,
+      };
+    }));
+  }, []);
+
   const CheckWishes = () => navigate("/Galaxy");
 
   return (
@@ -53,7 +65,8 @@ function PublicFeed() {
         <DanmuFlow 
           wishes={wishes} 
           loading={loading} 
-          onDataChange={fetchWishes} 
+          onDataChange={fetchWishes}
+          onWishUpdate={handleWishPatch}
         />
       </div>
       <div className="action-buttons">

@@ -1,6 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import snowflakeImg from '@/assets/images/雪花.svg';
-
 // 定义单条弹幕的数据结构 
 export interface DanmuData {
     id: number | string;

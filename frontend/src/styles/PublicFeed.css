@@ -5,6 +5,7 @@ body {
 .public-feed-page {
     display: flex;
     flex-direction: column;
+    /* 纵向布局：头部在上，弹幕居中，按钮在下 */
     align-items: center;
     justify-content: flex-start;
     height: 100vh;
@@ -16,8 +17,8 @@ body {
     align-items: center;
     justify-content: center;
     position: relative;
-    width: 100%; 
-    padding: 0 20px; 
+    width: 100%;
+    padding: 0 20px;
     box-sizing: border-box;
 }
 
@@ -25,12 +26,12 @@ body {
     font-size: 3rem;
     font-family: 'title';
     color: rgba(254, 255, 245, 1);
-    text-align: center; 
+    text-align: center;
 }
 
-.header > :last-child {
+.header> :last-child {
     position: absolute;
-    right: 20px; 
+    right: 20px;
 }
 
 .danmu-flow {
@@ -43,12 +44,6 @@ body {
     position: relative;
     overflow: hidden;
     margin: 0 auto;
-}
-
-.danmu-flow > * {
-  width: 90%; 
-  max-width: 1200px;
-  margin: 0 auto;
 }
 
 .action-buttons {

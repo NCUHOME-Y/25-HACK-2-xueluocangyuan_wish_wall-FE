@@ -1,15 +1,17 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import WishDanmu from './WishDanmu.tsx';
 import Modal from '@/components/common/Modal.tsx';
+import '@/styles/danmuModal.css';
 import '@/styles/wishdanmu.css';
 import '@/styles/wishModal.css';
 import commentButton from '@/assets/images/commentButton.svg';
 import dislike from '@/assets/images/dislikeButton.svg';
-import like from '@/assets/images/likeButton.svg'; 
-import { addComment, getWishInteractions } from '@/services/wishService';
+import like from '@/assets/images/likeButton.svg';
+import { addComment, getWishInteractions, likeWish } from '@/services/wishService';
 import { type Wish } from '@/services/wishService';
 import Button from '@/components/common/Button.tsx';
 import { getAvatarUrl } from '@/utils/avatar';
+import closeIcon from '@/assets/images/closeButton.svg';
 
 // 本地定义评论类型，匹配服务端返回字段
 type WishComment = {
@@ -23,7 +25,8 @@ type WishComment = {
 interface DanmuFlowProps {
   wishes: Wish[];
   loading: boolean;
-  onDataChange: () => void;
+  onDataChange: () => void; // 仍可用于强制重新拉取
+  onWishUpdate?: (patch: { id: number; likeCount?: number; commentCount?: number; isLiked?: boolean }) => void; // 局部同步
 }
 
 interface WishWithLiked extends Wish {
@@ -34,11 +37,11 @@ function isAbortError(error: unknown): error is DOMException {
   return error instanceof DOMException && error.name === 'AbortError';
 }
 
-const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) => {
+const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, onWishUpdate }) => {
   // 使用 ref 管理请求取消
   const abortControllerRef = useRef<AbortController | null>(null);
-  
-  
+
+
   // 弹窗状态
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalWish, setModalWish] = useState<WishWithLiked | null>(null);
@@ -46,7 +49,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
   const [commentInput, setCommentInput] = useState('');
   const [isLiking, setIsLiking] = useState(false);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
-  
+
   // 新增：控制评论区显隐状态
   const [showComments, setShowComments] = useState(false);
 
@@ -54,17 +57,20 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
   const handleDanmuClick = useCallback(async (wish: Wish) => {
     // 取消之前的请求
     abortControllerRef.current?.abort();
-    
+
     const controller = new AbortController();
     abortControllerRef.current = controller;
-    
+
     try {
       // 加载评论列表
       const interactions = await getWishInteractions(wish.id);
 
       const enhancedWish: WishWithLiked = {
         ...wish,
+        // 从交互数据中获取最新点赞状态与数量，避免展示旧数据
         isLiked: interactions?.likes?.currentUserLiked ?? false,
+        likeCount: interactions?.wishInfo?.likeCount ?? interactions?.likes?.totalCount ?? wish.likeCount,
+        commentCount: interactions?.wishInfo?.commentCount ?? wish.commentCount,
       };
 
       setModalWish(enhancedWish);
@@ -96,7 +102,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
     // 取消未完成的请求
     abortControllerRef.current?.abort();
     abortControllerRef.current = null;
-    
+
     setIsModalOpen(false);
     setModalWish(null);
     setComments([]);
@@ -106,21 +112,27 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
     setShowComments(false); // 新增：关闭弹窗时重置评论区状态
   }, []);
 
+  const handleClose = () => setIsModalOpen(false);
+
   // 点赞处理
   const handleLike = useCallback(async () => {
     if (!modalWish || isLiking || modalWish.isLiked) return;
-    
     setIsLiking(true);
+    const prev = modalWish;
+    // 乐观更新
+    setModalWish(cur => cur ? { ...cur, isLiked: true, likeCount: cur.likeCount + 1 } : cur);
     try {
-      // 更新本地状态
-      setModalWish(prev => prev ? {
-        ...prev,
-        isLiked: true,
-        likeCount: prev.likeCount + 1,
-      } : null);
-      onDataChange(); // 通知父组件刷新
-    } catch (err) {
-      console.error('点赞失败:', err);
+      const res = await likeWish(modalWish.id);
+      // 以服务端返回的最新 likeCount 纠正本地（防止并发或统计偏差）
+      setModalWish(cur => cur ? { ...cur, likeCount: res.likeCount, isLiked: res.liked } : cur);
+      // 优先本地同步父级列表，避免等待后端 eventual consistency
+      onWishUpdate?.({ id: modalWish.id, likeCount: res.likeCount, isLiked: res.liked });
+      // 仍可触发重新获取（可选，如果后端统计有延迟）
+      // onDataChange();
+    } catch (err: any) {
+      console.error('点赞失败:', err?.msg || err?.message || err);
+      // 回滚
+      setModalWish(prev);
     } finally {
       setIsLiking(false);
     }
@@ -141,7 +153,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
   // 评论处理
   const handleComment = useCallback(async () => {
     if (!modalWish || !commentInput.trim() || isSubmittingComment) return;
-    
+
     setIsSubmittingComment(true);
     try {
       const newComment = await addComment(modalWish.id, commentInput.trim());
@@ -158,7 +170,8 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
       ]);
       setCommentInput('');
       setModalWish(prev => prev ? { ...prev, commentCount: prev.commentCount + 1 } : null);
-      onDataChange();
+      onWishUpdate?.({ id: modalWish.id, commentCount: (modalWish.commentCount + 1) });
+      // onDataChange(); // 可选刷新
     } catch (err: any) {
       console.error('评论失败:', err?.msg || err?.message || err);
     } finally {
@@ -175,12 +188,12 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
 
   // 弹幕渲染
   const danmuRows = wishes.map((wish, index) => (
-    <div 
-      key={wish.id} 
+    <div
+      key={wish.id}
       className="danmu-row"
-      style={{ 
-        height: '40px', 
-        display: 'flex', 
+      style={{
+        height: '40px',
+        display: 'flex',
         alignItems: 'center',
         overflow: 'hidden'
       }}
@@ -219,7 +232,12 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
             <div className="user-info">
               <img src={getAvatarUrl(modalWish.avatarId)} alt="头像" className="avatar" />
               <span className="nickname">{modalWish.nickname}</span>
-              {modalWish.isOwn && <span className="own-badge">我的</span>}
+              <Button
+                onClick={handleClose}
+                className="close-button"
+                icon={closeIcon}
+              />
+
             </div>
 
             {/* 心愿内容 */}
@@ -227,15 +245,15 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
 
             {/* 互动区 - 优化按钮 */}
             <div className="interaction-bar">
-              <Button 
-                text={modalWish.isLiked ? '已点赞' : `点赞 ${modalWish.likeCount}`}
+              <Button
+                text={modalWish.isLiked ? `已点赞 ${modalWish.likeCount}` : `点赞 ${modalWish.likeCount}`}
                 icon={modalWish.isLiked ? like : dislike}
                 onClick={handleLike}
                 className={`action-button like-button ${modalWish.isLiked ? 'liked' : ''}`}
                 disabled={isLiking || modalWish.isLiked}
               />
               {/* 修改：点击切换评论区显示状态，并添加 active 类 */}
-              <Button 
+              <Button
                 text={`评论 ${modalWish.commentCount}`}
                 icon={commentButton}
                 onClick={handleToggleComments}
@@ -247,7 +265,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
             {showComments && (
               <div className="comments-section">
                 <h4>评论区</h4>
-                
+
                 {/* 发表评论 */}
                 <div className="comment-input-wrapper">
                   <input
@@ -260,9 +278,9 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
                     className="comment-input"
                     disabled={isSubmittingComment}
                   />
-                  <Button 
+                  <Button
                     text={isSubmittingComment ? '发送中...' : '发送'}
-                    icon={commentButton} 
+                    icon={commentButton}
                     onClick={handleComment}
                     disabled={!commentInput.trim() || isSubmittingComment}
                     className="send-button"
