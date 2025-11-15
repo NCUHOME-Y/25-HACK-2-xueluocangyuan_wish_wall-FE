@@ -254,7 +254,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
           id: wish.id,
           wishContent: wish.content,
           nickName: wish.nickname,
-          avatar: getAvatarUrl(wish.avatarId),
+          avatar: (wish as any).avatarUrl ? (wish as any).avatarUrl : getAvatarUrl(wish.avatarId),
         }}
         onDanmuClick={() => handleDanmuClick(wish)}
       />
@@ -280,7 +280,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
           <div className="wish-detail-modal">
             {/* 用户信息 */}
             <div className="user-info">
-              <img src={getAvatarUrl(modalWish.avatarId)} alt="头像" className="avatar" />
+              <img src={(modalWish as any).avatarUrl ? (modalWish as any).avatarUrl : getAvatarUrl(modalWish.avatarId)} alt="头像" className="avatar" />
               <span className="nickname">{modalWish.nickname}</span>
               <Button
                 onClick={handleCloseModal}

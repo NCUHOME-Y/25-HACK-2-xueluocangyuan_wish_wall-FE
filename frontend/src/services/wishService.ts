@@ -46,15 +46,33 @@ interface ApiResponse<T> {
 function normalizeWish(raw: any): Wish {
   const rawAvatar = raw?.avatarUrl ?? raw?.avatar ?? raw?.userAvatar ?? raw?.user_avatar ?? raw?.avatar_id;
   const parsedAvatarId = Number(raw?.avatarId ?? raw?.avatar_id ?? (typeof raw?.avatar === 'number' ? raw?.avatar : undefined) ?? 0);
+  // 更稳健的 isPublic 解析：支持 boolean/string/number/visibility
+  const isPublicRaw = raw?.isPublic ?? raw?.public ?? raw?.is_public ?? raw?.visibility;
+  let isPublic = false;
+  if (typeof isPublicRaw === 'boolean') {
+    isPublic = isPublicRaw;
+  } else if (typeof isPublicRaw === 'string') {
+    const s = isPublicRaw.toLowerCase();
+    isPublic = s === 'true' || s === '1' || s === 'public' || s === 'yes';
+  } else if (typeof isPublicRaw === 'number') {
+    isPublic = isPublicRaw === 1;
+  }
+  if (!isPublic && typeof raw?.visibility === 'string') {
+    isPublic = String(raw.visibility).toLowerCase() === 'public';
+  }
+
   return {
     id: Number(raw?.id ?? raw?.wishId ?? 0),
     content: String(raw?.content ?? raw?.wishContent ?? ''),
-    isPublic: Boolean(raw?.isPublic ?? raw?.public ?? raw?.visibility === 'public'),
+    isPublic,
     tags: Array.isArray(raw?.tags) ? raw.tags.map((t: any) => String(t)) : [],
     likeCount: Number(raw?.likeCount ?? raw?.like_count ?? raw?.likes ?? 0),
     commentCount: Number(raw?.commentCount ?? raw?.comment_count ?? raw?.comments ?? 0),
     createdAt: String(raw?.createdAt ?? raw?.created_at ?? raw?.create_time ?? new Date().toISOString()),
-    nickname: String(raw?.nickname ?? raw?.userNickname ?? raw?.user_name ?? '匿名'),
+    nickname: String(
+      raw?.nickname ?? raw?.nickName ?? raw?.userNickname ?? raw?.userNickName ?? raw?.user_name ??
+      raw?.authorNickname ?? raw?.creatorNickname ?? raw?.author?.nickname ?? raw?.creator?.nickname ?? '匿名'
+    ),
     avatarId: Number.isFinite(parsedAvatarId) ? parsedAvatarId : 0,
     avatarUrl: (typeof rawAvatar === 'string' && /^(https?:)?\/\//.test(rawAvatar)) ? String(rawAvatar) : undefined,
     isOwn: Boolean(raw?.isOwn ?? raw?.mine ?? raw?.own ?? false),
@@ -106,7 +124,9 @@ export const getPublicWishes = async (
   });
   const d: any = res.data || {};
   const rawList = extractWishArray(d);
-  const wishes = rawList.filter((w: any) => w && typeof w === 'object').map(normalizeWish);
+  const wishesAll = rawList.filter((w: any) => w && typeof w === 'object').map(normalizeWish);
+  // 保险起见，前端再过滤一次仅公开心愿
+  const wishes = wishesAll.filter((w: Wish) => w.isPublic === true);
   const p = Number(d.page ?? d.pageNum ?? d.currentPage ?? page);
   const s = Number(d.pageSize ?? d.size ?? pageSize);
   const total = Number(d.total ?? d.totalCount ?? rawList.length);
@@ -141,7 +161,8 @@ export const createWish = async (
   };
   //调用api
   const res = await apiClient.post<ApiResponse<Wish>,ApiResponse<Wish>>("/wishes", newWishData);
-  return res.data;
+  // 统一规范化，避免字段差异导致 UI 异常
+  return normalizeWish(res.data as any);
 };
 
 import { authService } from './authService';

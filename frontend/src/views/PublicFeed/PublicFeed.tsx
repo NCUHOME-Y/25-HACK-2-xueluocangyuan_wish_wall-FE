@@ -19,7 +19,8 @@ function PublicFeed() {
     try {
       setLoading(true);
       const response = await getPublicWishes(1, 50);
-      setWishes(response.wishes);
+      // 仅展示公开心愿，防御后端混入数据
+      setWishes((response.wishes || []).filter(w => w.isPublic));
     } catch (err) {
       console.error('获取失败:', err);
     } finally {
