@@ -62,6 +62,22 @@
     background: transparent;
 }
 
+/* 点赞按钮：悬停微亮与浅底色（治愈 hover 急需的反馈） */
+/* 点赞按钮：仅保留图片切换，不做 hover 文本/底色效果 */
+.wish-detail-modal .action-button.like-button {
+    border-radius: 10px;
+    padding: 4px 6px;
+}
+
+.wish-detail-modal .action-button.like-button .icon-image {
+    width: 20px;
+    height: 20px;
+}
+
+.wish-detail-modal .action-button.like-button .text {
+    margin-left: 6px;
+}
+
 .wish-detail-modal .comments-section {
     background: rgba(187, 215, 242, 1);
     border-radius: 16px 16px 0px 0px;

@@ -6,6 +6,7 @@ import '@/styles/wishdanmu.css';
 import '@/styles/wishModal.css';
 import commentButton from '@/assets/images/commentButton.svg';
 import like from '@/assets/images/likeButton.svg';
+import dislike from '@/assets/images/dislikeButton.svg';
 import { addComment, getWishInteractions, likeWish } from '@/services/wishService';
 import { type Wish } from '@/services/wishService';
 import Button from '@/components/common/Button.tsx';
@@ -246,8 +247,8 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
             {/* 互动区 - 优化按钮 */}
             <div className="interaction-bar">
               <Button
-                text={modalWish.isLiked ? `已点赞 ${modalWish.likeCount}` : `点赞 ${modalWish.likeCount}`}
-                icon={like}
+                text={`点赞 ${modalWish.likeCount}`}
+                icon={modalWish.isLiked ? like : dislike}
                 onClick={handleLike}
                 className={`action-button like-button ${modalWish.isLiked ? 'liked' : ''}`}
                 disabled={isLiking}
