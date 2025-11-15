@@ -25,6 +25,42 @@ body {
     align-items: center;
 }
 
+.galaxy-comments {
+    margin-top: 8px;
+    padding-left: 54px; /* 与头像对齐，形成层级感 */
+}
+
+.galaxy-comments .comment-item {
+    padding: 6px 0;
+    border-bottom: 1px dashed rgba(200, 220, 235, 0.6);
+}
+
+.galaxy-comments .comment-item:last-child {
+    border-bottom: none;
+}
+
+.galaxy-comments .avatar-small {
+    width: 28px;
+    height: 28px;
+}
+
+.galaxy-comments .comment-main {
+    padding: 8px 10px;
+}
+
+.galaxy-comments .comment-author {
+    font-size: 0.85rem;
+}
+
+.galaxy-comments .comment-text {
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.galaxy-comments .comment-time {
+    font-size: 0.7rem;
+}
+
 .wish-list {
     padding: 0 16px;
     border: rgba(255, 255, 255, 0.18) 1px solid;

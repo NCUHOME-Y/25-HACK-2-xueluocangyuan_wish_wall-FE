@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { services, type Wish } from '../../services/wishService';
 import BackButton from '@/components/common/BackButton.tsx';
 // 移除右上角个人心愿跳转按钮
@@ -15,7 +15,29 @@ export const Galaxy = () => {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
-  const [commentsMap, setCommentsMap] = useState<Record<number, { list: Array<{id:number;userNickname:string;userAvatarId:number;content:string;createdAt:string}>; loading: boolean; error?: string }>>({});
+  const [commentsMap, setCommentsMap] = useState<Record<number, { list: Array<{id:number;userNickname:string;userAvatarId:number;userAvatarUrl?: string; content:string;createdAt:string; isOwn?: boolean}>; loading: boolean; error?: string }>>({});
+  const [deletingCommentId, setDeletingCommentId] = useState<number | null>(null);
+
+  const handleDeleteComment = useCallback(async (wishId: number, commentId: number) => {
+    const entry = commentsMap[wishId];
+    if (!entry) return;
+    const target = entry.list.find(c => c.id === commentId);
+    if (!target || !target.isOwn) return;
+    setDeletingCommentId(commentId);
+    // 乐观更新：先从列表移除
+    const prevList = entry.list;
+    setCommentsMap(prev => ({ ...prev, [wishId]: { ...prev[wishId], list: prevList.filter(c => c.id !== commentId) } }));
+    try {
+      await services.deleteComment(commentId);
+      // 同步减少展示的 commentCount（可选）
+      setWishes(prev => prev.map(w => w.id === wishId ? { ...w, commentCount: Math.max(0, (w.commentCount || 0) - 1) } : w));
+    } catch (e) {
+      // 回滚
+      setCommentsMap(prev => ({ ...prev, [wishId]: { ...prev[wishId], list: prevList } }));
+    } finally {
+      setDeletingCommentId(null);
+    }
+  }, [commentsMap, setCommentsMap, setWishes]);
 
   // 加载心愿列表（首次与翻页）
   useEffect(() => {
@@ -111,7 +133,10 @@ export const Galaxy = () => {
                               (typeof (c as any).avatar_id === 'string' ? (c as any).avatar_id : undefined)),
                           content: String(c.content || ''),
                           createdAt: c.createdAt || new Date().toISOString(),
-                        }));
+                          isOwn: Boolean((c as any).isOwn || (c as any).mine || (c as any).own || false),
+                        }))
+                        // 时间升序，阅读更有序；如需最新在前可改为 b-a
+                        .sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
                         setCommentsMap(prev => ({ ...prev, [w.id]: { list: normalized, loading: false } }));
                       } catch (e: any) {
                         setCommentsMap(prev => ({ ...prev, [w.id]: { list: [], loading: false, error: e?.message || '加载失败' } }));
@@ -141,6 +166,13 @@ export const Galaxy = () => {
                                 <p className="comment-text">{c.content}</p>
                                 <span className="comment-time">{new Date(c.createdAt).toLocaleString()}</span>
                               </div>
+                              {c.isOwn && (
+                                <button
+                                  className="delete-comment-button"
+                                  onClick={() => handleDeleteComment(w.id, c.id)}
+                                  disabled={deletingCommentId === c.id}
+                                >{deletingCommentId === c.id ? '删除中...' : '删除'}</button>
+                              )}
                             </div>
                           </div>
                         ))

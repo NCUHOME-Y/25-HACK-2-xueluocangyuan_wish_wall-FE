@@ -170,8 +170,7 @@
     border: none;
 }
 
-.wish-detail-modal .comment-item,
-.galaxy-comments .comment-item {
+.wish-detail-modal .comment-item {
     margin-top: 10px;
     margin-bottom: 10px;
     align-items: flex-start;
@@ -179,8 +178,7 @@
 }
 
 /* 评论主体容器：承载作者与气泡，拉满可用宽度 */
-.wish-detail-modal .comment-body,
-.galaxy-comments .comment-body {
+.wish-detail-modal .comment-body {
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -188,8 +186,7 @@
 }
 
 /* 评论内容容器与文本样式（移动端友好） */
-.wish-detail-modal .comment-main,
-.galaxy-comments .comment-main {
+.wish-detail-modal .comment-main {
     display: flex;
     flex-direction: column;
     background: rgba(255, 255, 255, 0.9);
@@ -203,15 +200,13 @@
     /* 与作者名拉开一点距离 */
 }
 
-.wish-detail-modal .comment-author,
-.galaxy-comments .comment-author {
+.wish-detail-modal .comment-author {
     font-weight: 600;
     font-size: 0.95rem;
     color: rgba(26, 26, 26, 0.92);
 }
 
-.wish-detail-modal .comment-text,
-.galaxy-comments .comment-text {
+.wish-detail-modal .comment-text {
     margin-top: 2px;
     font-size: 0.9rem;
     color: rgba(26, 26, 26, 0.9);
@@ -220,16 +215,14 @@
     white-space: pre-wrap;
 }
 
-.wish-detail-modal .comment-time,
-.galaxy-comments .comment-time {
+.wish-detail-modal .comment-time {
     margin-top: 6px;
     font-size: 0.75rem;
     color: rgba(109, 144, 176, 1);
 }
 
 /* 删除评论按钮：轻量、强调危险操作，不破坏整体治愈风格 */
-.wish-detail-modal .delete-comment-button,
-.galaxy-comments .delete-comment-button {
+.wish-detail-modal .delete-comment-button {
     margin-left: 55px;
     margin-right: 8px;
     background: rgba(106, 228, 216, 0.12);

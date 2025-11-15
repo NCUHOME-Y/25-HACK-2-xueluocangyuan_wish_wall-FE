@@ -276,7 +276,7 @@ export const getWishInteractions = async (
     const normalizeComment = (c: any): wishComment => ({
       id: Number(c?.id ?? c?.commentId ?? 0),
       userId: Number(c?.userId ?? c?.uid ?? 0),
-      userNickname: String(c?.userNickname ?? c?.nickname ?? c?.user_name ?? '匿名用户'),
+      userNickname: String(c?.userNickname ?? c?.nickname ?? c?.nickName ?? c?.user_name ?? '匿名用户'),
       userAvatarId: Number(c?.userAvatarId ?? c?.avatarId ?? c?.avatar_id ?? 0),
       wishId: Number(c?.wishId ?? c?.wid ?? wishId),
       likeCount: Number(c?.likeCount ?? c?.like_count ?? 0),
@@ -326,7 +326,7 @@ export const getWishComments = async (
   const normalizeComment = (c: any): wishComment => ({
     id: Number(c?.id ?? c?.commentId ?? 0),
     userId: Number(c?.userId ?? c?.uid ?? 0),
-    userNickname: String(c?.userNickname ?? c?.nickname ?? c?.user_name ?? '匿名用户'),
+    userNickname: String(c?.userNickname ?? c?.nickname ?? c?.nickName ?? c?.user_name ?? '匿名用户'),
     userAvatarId: Number(c?.userAvatarId ?? c?.avatarId ?? c?.avatar_id ?? 0),
     wishId: Number(c?.wishId ?? c?.wid ?? wishId),
     likeCount: Number(c?.likeCount ?? c?.like_count ?? 0),
