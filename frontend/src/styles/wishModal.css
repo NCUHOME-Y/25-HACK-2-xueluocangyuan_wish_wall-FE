@@ -48,8 +48,8 @@ textarea {
   background: transparent;
   border: none;
   color: rgba(114, 140, 154, 1);
-  width: 100%;
-  height: 100%;
+  width: 40vw;
+  height: 40vh;
   text-decoration: underline;
   font-size: 1.25rem;
   text-decoration-color: rgba(150, 190, 212, 1);

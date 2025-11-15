@@ -5,7 +5,6 @@ import '@/styles/danmuModal.css';
 import '@/styles/wishdanmu.css';
 import '@/styles/wishModal.css';
 import commentButton from '@/assets/images/commentButton.svg';
-import dislike from '@/assets/images/dislikeButton.svg';
 import like from '@/assets/images/likeButton.svg';
 import { addComment, getWishInteractions, likeWish } from '@/services/wishService';
 import { type Wish } from '@/services/wishService';
@@ -112,23 +111,24 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
     setShowComments(false); // 新增：关闭弹窗时重置评论区状态
   }, []);
 
-  const handleClose = () => setIsModalOpen(false);
+  // 已用 handleCloseModal 作为统一关闭并清理函数，去掉未使用的快捷关闭
 
   // 点赞处理
   const handleLike = useCallback(async () => {
-    if (!modalWish || isLiking || modalWish.isLiked) return;
+    if (!modalWish || isLiking) return;
     setIsLiking(true);
     const prev = modalWish;
-    // 乐观更新
-    setModalWish(cur => cur ? { ...cur, isLiked: true, likeCount: cur.likeCount + 1 } : cur);
+    const optimisticLiked = !prev.isLiked;
+    const optimisticCount = Math.max(0, prev.likeCount + (optimisticLiked ? 1 : -1));
+    // 乐观切换（支持取消点赞）
+    setModalWish(cur => cur ? { ...cur, isLiked: optimisticLiked, likeCount: optimisticCount } : cur);
     try {
       const res = await likeWish(modalWish.id);
-      // 以服务端返回的最新 likeCount 纠正本地（防止并发或统计偏差）
-      setModalWish(cur => cur ? { ...cur, likeCount: res.likeCount, isLiked: res.liked } : cur);
-      // 优先本地同步父级列表，避免等待后端 eventual consistency
-      onWishUpdate?.({ id: modalWish.id, likeCount: res.likeCount, isLiked: res.liked });
-      // 仍可触发重新获取（可选，如果后端统计有延迟）
-      // onDataChange();
+      // 兼容 204 或无字段返回：用乐观值兜底
+      const nextLiked = (res as any)?.liked ?? optimisticLiked;
+      const nextCount = Number.isFinite((res as any)?.likeCount) ? (res as any).likeCount : optimisticCount;
+      setModalWish(cur => cur ? { ...cur, likeCount: nextCount, isLiked: nextLiked } : cur);
+      onWishUpdate?.({ id: modalWish.id, likeCount: nextCount, isLiked: nextLiked });
     } catch (err: any) {
       console.error('点赞失败:', err?.msg || err?.message || err);
       // 回滚
@@ -136,7 +136,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
     } finally {
       setIsLiking(false);
     }
-  }, [modalWish, isLiking, onDataChange]);
+  }, [modalWish, isLiking, onWishUpdate]);
 
   // 新增：处理评论按钮点击
   const handleToggleComments = useCallback(() => {
@@ -187,15 +187,16 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
   }, []);
 
   // 弹幕渲染
-  const danmuRows = wishes.map((wish, index) => (
+  const danmuRows = wishes.slice(0, 15).map((wish) => (
     <div
       key={wish.id}
       className="danmu-row"
       style={{
-        height: '40px',
+        height: '50px',
         display: 'flex',
         alignItems: 'center',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        fontSize: '5rem',
       }}
     >
       <WishDanmu
@@ -205,7 +206,6 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
           nickName: wish.nickname,
           avatar: getAvatarUrl(wish.avatarId),
         }}
-        baseVelocity={(index % 2 === 0 ? -1 : 1) * (50 + (index % 3) * 10)}
         onDanmuClick={() => handleDanmuClick(wish)}
       />
     </div>
@@ -233,7 +233,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
               <img src={getAvatarUrl(modalWish.avatarId)} alt="头像" className="avatar" />
               <span className="nickname">{modalWish.nickname}</span>
               <Button
-                onClick={handleClose}
+                onClick={handleCloseModal}
                 className="close-button"
                 icon={closeIcon}
               />
@@ -247,10 +247,10 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
             <div className="interaction-bar">
               <Button
                 text={modalWish.isLiked ? `已点赞 ${modalWish.likeCount}` : `点赞 ${modalWish.likeCount}`}
-                icon={modalWish.isLiked ? like : dislike}
+                icon={like}
                 onClick={handleLike}
                 className={`action-button like-button ${modalWish.isLiked ? 'liked' : ''}`}
-                disabled={isLiking || modalWish.isLiked}
+                disabled={isLiking}
               />
               {/* 修改：点击切换评论区显示状态，并添加 active 类 */}
               <Button

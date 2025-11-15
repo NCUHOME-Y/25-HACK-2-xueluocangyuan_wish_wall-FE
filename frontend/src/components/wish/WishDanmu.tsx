@@ -23,7 +23,7 @@ const WishDanmu = ({
     baseVelocity = -50, // 默认向左滚动
     onDanmuClick,
     onAnimationComplete,
-  //  trackIndex
+    //  trackIndex
 }: WishDanmuProps) => {
     const { wishContent } = data;
     const displayContent = wishContent.length > MAX_CHARS
@@ -34,31 +34,25 @@ const WishDanmu = ({
     const offsetRef = useRef(0);
     const animRef = useRef<number | null>(null);
     const [itemWidth, setItemWidth] = useState(0);
-    const [repeatCount, setRepeatCount] = useState(3);
 
-    // 计算单个弹幕项的宽度并计算需要的重复次数
+    // 计算单个弹幕项的宽度（不再重复渲染，使用单元素循环）
     useEffect(() => {
         if (scrollRef.current && scrollRef.current.children[0]) {
             const width = (scrollRef.current.children[0] as HTMLElement).offsetWidth;
             setItemWidth(width);
-            
-            // 计算屏幕宽度需要多少个弹幕项来填满 + 2个额外的用于平滑滚动
-            const screenWidth = window.innerWidth;
-            const needed = Math.ceil(screenWidth / width) + 2;
-            setRepeatCount(needed);
         }
     }, [displayContent]);
 
-    // 动画循环：单次滚动，完成后触发回调
+    // 动画循环：到达边界后重置继续（单元素无限循环）
     useEffect(() => {
-        if (itemWidth === 0 || repeatCount === 0) return;
+        if (itemWidth === 0) return;
         if (!scrollRef.current) return;
 
         // 根据滚动方向设置初始位置（从屏幕外开始）
-        const startOffset = baseVelocity > 0 
-            ? -itemWidth * repeatCount  // 向右滚动：从左侧屏幕外开始
-            : window.innerWidth;         // 向左滚动：从右侧屏幕外开始
-        
+        const startOffset = baseVelocity > 0
+            ? -itemWidth  // 向右滚动：从左侧屏幕外开始
+            : window.innerWidth; // 向左滚动：从右侧屏幕外开始
+
         offsetRef.current = startOffset;
 
         const step = () => {
@@ -69,15 +63,12 @@ const WishDanmu = ({
             // 检测是否完全滚出屏幕
             const isComplete = baseVelocity > 0
                 ? offsetRef.current > window.innerWidth  // 向右滚动：超出右边界
-                : offsetRef.current < -itemWidth * repeatCount; // 向左滚动：超出左边界
+                : offsetRef.current < -itemWidth; // 向左滚动：超出左边界
 
-            // 如果完成滚动，触发回调并停止动画
+            // 完成一次滚动后，触发回调并重置到起点继续循环
             if (isComplete) {
-                if (animRef.current) {
-                    cancelAnimationFrame(animRef.current);
-                }
                 onAnimationComplete?.();
-                return;
+                offsetRef.current = startOffset;
             }
 
             // 更新 DOM transform（避免 React 重渲染）
@@ -96,43 +87,38 @@ const WishDanmu = ({
                 cancelAnimationFrame(animRef.current);
             }
         };
-    }, [itemWidth, baseVelocity, repeatCount, onAnimationComplete]);
+    }, [itemWidth, baseVelocity, onAnimationComplete]);
 
     const handleDanmuClick = useCallback(() => {
         onDanmuClick(data);
     }, [data, onDanmuClick]);
 
     return (
-        <div className="wish-danmu-container" onClick={handleDanmuClick}> 
+        <div className="wish-danmu-container" onClick={handleDanmuClick}>
             <div
                 className="scroll-content"
                 ref={scrollRef}
                 style={{
-                    display: 'flex', 
+                    display: 'flex',
                     alignItems: 'center',
                     whiteSpace: 'nowrap',
                     cursor: 'pointer',
-                    willChange: 'transform' 
+                    willChange: 'transform',
+                    fontSize: '2rem',
                 }}
             >
-                {/* 渲染足够多的弹幕项来填满屏幕 */}
-                {Array.from({ length: repeatCount }).map((_, index) => (
-                    <div key={index} className="danmu-item-wrapper">
-                        {/* 雪花图片 */}
-                        <img 
-                            src={snowflakeImg} 
-                            alt="snowflake" 
-                            className="snowflake-icon" 
-                        />
-                        {/* 文本内容 */}
-                        <span className="danmu-text-bubble">
-                            {displayContent}
-                        </span>
-                    </div>
-                ))}
+                {/* 单元素：删除重复内容，使用循环动画 */}
+                <div className="danmu-item-wrapper">
+                    <img
+                        src={snowflakeImg}
+                        alt="snowflake"
+                        className="snowflake-icon"
+                    />
+                    <span className="danmu-text-bubble">{displayContent}</span>
+                </div>
             </div>
         </div>
     );
 };
- 
+
 export default WishDanmu;

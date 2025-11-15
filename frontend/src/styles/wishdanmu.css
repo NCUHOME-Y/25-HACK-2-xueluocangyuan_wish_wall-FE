@@ -24,17 +24,19 @@
 
 /* 单个完整的弹幕项 (雪花 + 文本气泡) */
 .danmu-item-wrapper {
+    font-size: 2rem;
     display: flex;
     align-items: center; /* 确保雪花和文本垂直居中 */
     margin-right: 40px; /* 控制相邻弹幕项之间的间隔 */
-    /* 必须设置 flex-shrink: 0 防止被压缩 */
+    font-size: 2rem;
+    height: 40px;
     flex-shrink: 0; 
 }
 
 /* 雪花图片样式 */
 .snowflake-icon {
     width: 20px; /* 调整雪花图片大小 */
-    height: 20px;
+    height: 40px;
     object-fit: contain;
     margin-right: 8px; /* 雪花和文本气泡之间的间隔 */
 }
@@ -45,7 +47,7 @@
     color: #004d40; 
     padding: 4px 12px;
     border-radius: 8px; 
-    font-size: 16px;
+    font-size: 1.5rem;
     font-weight: bold;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     /* 确保文本本身不换行  */
@@ -57,6 +59,7 @@
     height: 40px;
     display: flex;
     align-items: center;
+    font-size: 5rem;
     flex-shrink: 0;
 }
 
