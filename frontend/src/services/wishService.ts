@@ -12,6 +12,7 @@ export interface Wish {
   createdAt: string;
   nickname: string;
   avatarId: number;
+  avatarUrl?: string;
   isOwn: boolean; //是否是当前用户的心愿
 }
 
@@ -43,6 +44,8 @@ interface ApiResponse<T> {
 //获取个人许愿列表
 // 统一规范化后端字段，兼容 snake_case / 变动字段名
 function normalizeWish(raw: any): Wish {
+  const rawAvatar = raw?.avatarUrl ?? raw?.avatar ?? raw?.userAvatar ?? raw?.user_avatar ?? raw?.avatar_id;
+  const parsedAvatarId = Number(raw?.avatarId ?? raw?.avatar_id ?? (typeof raw?.avatar === 'number' ? raw?.avatar : undefined) ?? 0);
   return {
     id: Number(raw?.id ?? raw?.wishId ?? 0),
     content: String(raw?.content ?? raw?.wishContent ?? ''),
@@ -52,7 +55,8 @@ function normalizeWish(raw: any): Wish {
     commentCount: Number(raw?.commentCount ?? raw?.comment_count ?? raw?.comments ?? 0),
     createdAt: String(raw?.createdAt ?? raw?.created_at ?? raw?.create_time ?? new Date().toISOString()),
     nickname: String(raw?.nickname ?? raw?.userNickname ?? raw?.user_name ?? '匿名'),
-    avatarId: Number(raw?.avatarId ?? raw?.avatar_id ?? raw?.avatar ?? 0),
+    avatarId: Number.isFinite(parsedAvatarId) ? parsedAvatarId : 0,
+    avatarUrl: (typeof rawAvatar === 'string' && /^(https?:)?\/\//.test(rawAvatar)) ? String(rawAvatar) : undefined,
     isOwn: Boolean(raw?.isOwn ?? raw?.mine ?? raw?.own ?? false),
   };
 }
@@ -172,6 +176,7 @@ export interface wishComment {
   userId: number;
   userNickname: string;
   userAvatarId: number;
+  userAvatarUrl?: string;
   wishId: number;
   likeCount: number;
   content: string;
@@ -273,17 +278,26 @@ export const getWishInteractions = async (
       rawList = commentsSrc.list || commentsSrc.records || commentsSrc.items || commentsSrc.data || [];
     }
 
-    const normalizeComment = (c: any): wishComment => ({
-      id: Number(c?.id ?? c?.commentId ?? 0),
-      userId: Number(c?.userId ?? c?.uid ?? 0),
-      userNickname: String(c?.userNickname ?? c?.nickname ?? c?.nickName ?? c?.user_name ?? '匿名用户'),
-      userAvatarId: Number(c?.userAvatarId ?? c?.avatarId ?? c?.avatar_id ?? 0),
-      wishId: Number(c?.wishId ?? c?.wid ?? wishId),
-      likeCount: Number(c?.likeCount ?? c?.like_count ?? 0),
-      content: String(c?.content ?? c?.text ?? ''),
-      createdAt: String(c?.createdAt ?? c?.created_at ?? c?.create_time ?? new Date().toISOString()),
-      isOwn: Boolean(c?.isOwn ?? c?.mine ?? c?.own ?? false),
-    });
+    const normalizeComment = (c: any): wishComment => {
+      const avatarRaw = c?.userAvatar ?? c?.avatar ?? c?.user_avatar ?? c?.avatar_id;
+      const avatarIdRaw = c?.userAvatarId ?? c?.avatarId ?? c?.avatar_id ?? c?.user?.avatarId ?? c?.user?.avatar_id;
+      const numericAvatarId = Number(avatarIdRaw);
+      return {
+        id: Number(c?.id ?? c?.commentId ?? 0),
+        userId: Number(c?.userId ?? c?.uid ?? c?.user_id ?? c?.user?.id ?? 0),
+        userNickname: String(
+          c?.userNickname ?? c?.userNickName ?? c?.nickname ?? c?.nickName ?? c?.user_name ??
+          c?.user?.nickname ?? c?.user?.nickName ?? c?.author?.nickname ?? c?.commentUser?.nickname ?? '匿名用户'
+        ),
+        userAvatarId: Number.isFinite(numericAvatarId) ? numericAvatarId : 0,
+        userAvatarUrl: (typeof avatarRaw === 'string' && /^(https?:)?\/\//.test(avatarRaw)) ? String(avatarRaw) : undefined,
+        wishId: Number(c?.wishId ?? c?.wid ?? wishId),
+        likeCount: Number(c?.likeCount ?? c?.like_count ?? 0),
+        content: String(c?.content ?? c?.text ?? ''),
+        createdAt: String(c?.createdAt ?? c?.created_at ?? c?.create_time ?? new Date().toISOString()),
+        isOwn: Boolean(c?.isOwn ?? c?.mine ?? c?.own ?? false),
+      };
+    };
 
     const list = rawList
       .filter((c: any) => c && typeof c === 'object')
@@ -323,17 +337,26 @@ export const getWishComments = async (
   if (Array.isArray(src)) rawList = src;
   else if (src && typeof src === 'object') rawList = src.list || src.records || src.items || src.data || [];
 
-  const normalizeComment = (c: any): wishComment => ({
-    id: Number(c?.id ?? c?.commentId ?? 0),
-    userId: Number(c?.userId ?? c?.uid ?? 0),
-    userNickname: String(c?.userNickname ?? c?.nickname ?? c?.nickName ?? c?.user_name ?? '匿名用户'),
-    userAvatarId: Number(c?.userAvatarId ?? c?.avatarId ?? c?.avatar_id ?? 0),
-    wishId: Number(c?.wishId ?? c?.wid ?? wishId),
-    likeCount: Number(c?.likeCount ?? c?.like_count ?? 0),
-    content: String(c?.content ?? c?.text ?? ''),
-    createdAt: String(c?.createdAt ?? c?.created_at ?? c?.create_time ?? new Date().toISOString()),
-    isOwn: Boolean(c?.isOwn ?? c?.mine ?? c?.own ?? false),
-  });
+  const normalizeComment = (c: any): wishComment => {
+    const avatarRaw = c?.userAvatar ?? c?.avatar ?? c?.user_avatar ?? c?.avatar_id;
+    const avatarIdRaw = c?.userAvatarId ?? c?.avatarId ?? c?.avatar_id ?? c?.user?.avatarId ?? c?.user?.avatar_id;
+    const numericAvatarId = Number(avatarIdRaw);
+    return {
+      id: Number(c?.id ?? c?.commentId ?? 0),
+      userId: Number(c?.userId ?? c?.uid ?? c?.user_id ?? c?.user?.id ?? 0),
+      userNickname: String(
+        c?.userNickname ?? c?.userNickName ?? c?.nickname ?? c?.nickName ?? c?.user_name ??
+        c?.user?.nickname ?? c?.user?.nickName ?? c?.author?.nickname ?? c?.commentUser?.nickname ?? '匿名用户'
+      ),
+      userAvatarId: Number.isFinite(numericAvatarId) ? numericAvatarId : 0,
+      userAvatarUrl: (typeof avatarRaw === 'string' && /^(https?:)?\/\//.test(avatarRaw)) ? String(avatarRaw) : undefined,
+      wishId: Number(c?.wishId ?? c?.wid ?? wishId),
+      likeCount: Number(c?.likeCount ?? c?.like_count ?? 0),
+      content: String(c?.content ?? c?.text ?? ''),
+      createdAt: String(c?.createdAt ?? c?.created_at ?? c?.create_time ?? new Date().toISOString()),
+      isOwn: Boolean(c?.isOwn ?? c?.mine ?? c?.own ?? false),
+    };
+  };
 
   const list = rawList.filter((c: any) => c && typeof c === 'object').map(normalizeComment);
   const p = Number(src?.page ?? src?.pageNum ?? src?.currentPage ?? page);

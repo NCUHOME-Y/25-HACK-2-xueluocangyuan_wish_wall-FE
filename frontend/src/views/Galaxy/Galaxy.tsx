@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useUserStore } from '@/store/userStore';
 import { services, type Wish } from '../../services/wishService';
 import BackButton from '@/components/common/BackButton.tsx';
 // 移除右上角个人心愿跳转按钮
@@ -17,6 +18,7 @@ export const Galaxy = () => {
   const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
   const [commentsMap, setCommentsMap] = useState<Record<number, { list: Array<{id:number;userNickname:string;userAvatarId:number;userAvatarUrl?: string; content:string;createdAt:string; isOwn?: boolean}>; loading: boolean; error?: string }>>({});
   const [deletingCommentId, setDeletingCommentId] = useState<number | null>(null);
+  const user = useUserStore(s => s.user);
 
   const handleDeleteComment = useCallback(async (wishId: number, commentId: number) => {
     const entry = commentsMap[wishId];
@@ -101,7 +103,7 @@ export const Galaxy = () => {
         <ul className="wish-list">
           {wishes.map(w => (
             <li key={w.id} className="wish-item">
-              <img src={getAvatarUrl(w.avatarId)} alt={w.nickname} className="wish-avatar" />
+              <img src={(w as any).avatarUrl ? (w as any).avatarUrl : getAvatarUrl(w.avatarId)} alt={w.nickname} className="wish-avatar" />
               <div className="wish-main">
                 <div className="wish-header">
                   <span className="wish-time">{new Date(w.createdAt).toLocaleDateString()}</span>
@@ -126,14 +128,25 @@ export const Galaxy = () => {
                         const list = (res as any)?.list || [];
                         const normalized = list.filter((c: any) => c && typeof c === 'object').map((c: any) => ({
                           id: Number(c.id) || 0,
-                          userNickname: String(c.userNickname || '匿名用户'),
+                          userId: Number((c as any).userId ?? (c as any).uid ?? (c as any).user_id ?? ((c as any).user && (c as any).user.id) ?? 0),
+                          userNickname: String(
+                            c.userNickname || c.userNickName || c.nickname || c.nickName || c.user_name ||
+                            (c.user && (c.user.nickname || c.user.nickName)) || '匿名用户'
+                          ),
                           userAvatarId: typeof (c as any).userAvatarId === 'number' ? (c as any).userAvatarId : 0,
-                          userAvatarUrl: typeof (c as any).userAvatar === 'string' ? (c as any).userAvatar :
+                          userAvatarUrl: (c as any).userAvatarUrl ? (c as any).userAvatarUrl : (typeof (c as any).userAvatar === 'string' ? (c as any).userAvatar :
                             (typeof (c as any).userAvatarId === 'string' ? (c as any).userAvatarId :
-                              (typeof (c as any).avatar_id === 'string' ? (c as any).avatar_id : undefined)),
+                              (typeof (c as any).avatar_id === 'string' ? (c as any).avatar_id : undefined))),
                           content: String(c.content || ''),
                           createdAt: c.createdAt || new Date().toISOString(),
-                          isOwn: Boolean((c as any).isOwn || (c as any).mine || (c as any).own || false),
+                          isOwn: Boolean(
+                            (c as any).isOwn || (c as any).mine || (c as any).own ||
+                            ((user?.id != null) ? (Number((c as any).userId ?? 0) === Number(user.id)) : false) ||
+                            ((user?.nickname && typeof user.nickname === 'string') ? (String(
+                              c.userNickname || c.userNickName || c.nickname || c.nickName || c.user_name ||
+                              (c.user && (c.user.nickname || c.user.nickName)) || ''
+                            ) === user.nickname) : false)
+                          ),
                         }))
                         // 时间升序，阅读更有序；如需最新在前可改为 b-a
                         .sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());

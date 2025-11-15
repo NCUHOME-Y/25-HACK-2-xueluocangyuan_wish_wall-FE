@@ -61,6 +61,40 @@ body {
     font-size: 0.7rem;
 }
 
+/* 删除评论按钮（Galaxy 页面） */
+.galaxy-comments .delete-comment-button {
+    margin-left: 55px;
+    margin-right: 8px;
+    background: rgba(106, 228, 216, 0.12);
+    color: rgb(93, 191, 233);
+    border: 1px solid rgba(98, 155, 241, 0.5);
+    border-radius: 12px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+}
+
+.galaxy-comments .delete-comment-button:hover:not(:disabled) {
+    background: rgba(93, 247, 247, 0.25);
+    color: rgb(101, 190, 196);
+    border-color: rgba(82, 220, 223, 0.8);
+}
+
+.galaxy-comments .delete-comment-button:active:not(:disabled) {
+    background: rgba(72, 235, 230, 0.35);
+    color: rgb(102, 223, 245);
+}
+
+.galaxy-comments .delete-comment-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .wish-list {
     padding: 0 16px;
     border: rgba(255, 255, 255, 0.18) 1px solid;
