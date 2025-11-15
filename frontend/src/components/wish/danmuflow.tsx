@@ -7,7 +7,7 @@ import '@/styles/wishModal.css';
 import commentButton from '@/assets/images/commentButton.svg';
 import like from '@/assets/images/likeButton.svg';
 import dislike from '@/assets/images/dislikeButton.svg';
-import { addComment, getWishInteractions, likeWish, deleteComment, getWishComments } from '@/services/wishService';
+import { addComment, getWishInteractions, likeWish, deleteComment, getWishComments, deleteWish } from '@/services/wishService';
 import { type Wish } from '@/services/wishService';
 import Button from '@/components/common/Button.tsx';
 import { getAvatarUrl } from '@/utils/avatar';
@@ -54,6 +54,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
   const [isLiking, setIsLiking] = useState(false);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [deletingCommentId, setDeletingCommentId] = useState<number | null>(null);
+  const [deletingWish, setDeletingWish] = useState<boolean>(false);
   const user = useUserStore(s => s.user);
   const currentUserId = Number((user as any)?.id ?? (user as any)?.userId ?? (user as any)?.uid ?? 0);
 
@@ -73,12 +74,19 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
       // 先拿点赞等交互状态
       const interactions = await getWishInteractions(wish.id);
 
+      // 合并交互接口中的规范化 wishInfo，优先覆盖昵称与头像信息
+      const info = interactions?.wishInfo as Partial<WishWithLiked> | undefined;
       const enhancedWish: WishWithLiked = {
         ...wish,
+        // 优先交互接口的昵称与头像，避免“匿名/默认头像”问题
+        nickname: info?.nickname ?? wish.nickname,
+        avatarId: Number(info?.avatarId ?? wish.avatarId),
+        avatarUrl: (info as any)?.avatarUrl ?? (wish as any).avatarUrl,
+        isOwn: (info as any)?.isOwn ?? wish.isOwn,
         // 从交互数据中获取最新点赞状态与数量，避免展示旧数据
         isLiked: interactions?.likes?.currentUserLiked ?? false,
-        likeCount: interactions?.wishInfo?.likeCount ?? interactions?.likes?.totalCount ?? wish.likeCount,
-        commentCount: interactions?.wishInfo?.commentCount ?? wish.commentCount,
+        likeCount: info?.likeCount ?? interactions?.likes?.totalCount ?? wish.likeCount,
+        commentCount: info?.commentCount ?? wish.commentCount,
       };
 
       setModalWish(enhancedWish);
@@ -120,6 +128,26 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
       }
     }
   }, []);
+
+  // 删除愿望（仅自己）
+  const handleDeleteWish = useCallback(async () => {
+    if (!modalWish || !modalWish.isOwn || deletingWish) return;
+    setDeletingWish(true);
+    try {
+      await deleteWish(modalWish.id);
+      // 静默关闭并刷新列表
+      setIsModalOpen(false);
+      setModalWish(null);
+      onDataChange();
+    } catch (e) {
+      // 失败也静默关闭并刷新，避免提示打扰
+      setIsModalOpen(false);
+      setModalWish(null);
+      onDataChange();
+    } finally {
+      setDeletingWish(false);
+    }
+  }, [modalWish, deletingWish, onDataChange]);
 
   // 关闭弹窗
   const handleCloseModal = useCallback(() => {
@@ -282,6 +310,14 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
             <div className="user-info">
               <img src={(modalWish as any).avatarUrl ? (modalWish as any).avatarUrl : getAvatarUrl(modalWish.avatarId)} alt="头像" className="avatar" />
               <span className="nickname">{modalWish.nickname}</span>
+              {modalWish.isOwn && (
+                <Button
+                  text={deletingWish ? '删除中...' : '删除愿望'}
+                  onClick={handleDeleteWish}
+                  disabled={deletingWish}
+                  className="delete-comment-button"
+                />
+              )}
               <Button
                 onClick={handleCloseModal}
                 className="close-button"

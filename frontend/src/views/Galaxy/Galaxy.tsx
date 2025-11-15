@@ -19,6 +19,7 @@ export const Galaxy = () => {
   const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
   const [commentsMap, setCommentsMap] = useState<Record<number, { list: Array<{id:number;userNickname:string;userAvatarId:number;userAvatarUrl?: string; content:string;createdAt:string; isOwn?: boolean}>; loading: boolean; error?: string }>>({});
   const [deletingCommentId, setDeletingCommentId] = useState<number | null>(null);
+  const [deletingWishId, setDeletingWishId] = useState<number | null>(null);
   const user = useUserStore(s => s.user);
 
   const handleDeleteComment = useCallback(async (wishId: number, commentId: number) => {
@@ -41,6 +42,28 @@ export const Galaxy = () => {
       setDeletingCommentId(null);
     }
   }, [commentsMap, setCommentsMap, setWishes]);
+
+  const handleDeleteWish = useCallback(async (wishId: number) => {
+    setDeletingWishId(wishId);
+    const prevWishes = wishes;
+    // 乐观更新：先移除该心愿
+    setWishes(prev => prev.filter(w => w.id !== wishId));
+    try {
+      await services.deleteWish(wishId);
+      // 以服务端为准拉取一遍，确保确实删除
+      try {
+        const res = await services.getMyWishes(1, 20);
+        setWishes(res.wishes);
+        setHasMore(res.pagination.hasMore);
+      } catch { /* 静默忽略刷新失败 */ }
+    } catch (e: any) {
+      // 回滚
+      setWishes(prevWishes);
+      // 静默失败，不做任何提示
+    } finally {
+      setDeletingWishId(null);
+    }
+  }, [wishes, setWishes]);
 
   // 加载心愿列表（首次与翻页）
   useEffect(() => {
@@ -112,6 +135,11 @@ export const Galaxy = () => {
                 <p className="wish-content">{w.content}</p>
                 <div className="wish-meta">
                   <span>点赞: {w.likeCount}</span>
+                  <button
+                    className="delete-wish-button"
+                    onClick={() => handleDeleteWish(w.id)}
+                    disabled={deletingWishId === w.id}
+                  >{deletingWishId === w.id ? '删除中...' : '删除'}</button>
                   <button
                     className="comment-button"
                     onClick={async () => {

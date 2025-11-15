@@ -274,6 +274,30 @@ body {
     margin-left: 2px;
 }
 
+/* 删除心愿按钮：轻量危险样式，适配小屏 */
+.delete-wish-button {
+    margin-left: auto;
+    margin-right: 8px;
+    padding: 4px 10px;
+    font-size: 12px;
+    line-height: 1;
+    color: #71ffff;
+    background: #70bbe7;
+    border: 1px solid #86ffed;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.delete-wish-button:hover:not(:disabled) {
+    background: #699cf3;
+}
+.delete-wish-button:active:not(:disabled) {
+    background: #61f9f9;
+}
+.delete-wish-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .comment-button:hover:not(:disabled) {
     background: transparent;
 }

@@ -44,8 +44,16 @@ interface ApiResponse<T> {
 //获取个人许愿列表
 // 统一规范化后端字段，兼容 snake_case / 变动字段名
 function normalizeWish(raw: any): Wish {
-  const rawAvatar = raw?.avatarUrl ?? raw?.avatar ?? raw?.userAvatar ?? raw?.user_avatar ?? raw?.avatar_id;
-  const parsedAvatarId = Number(raw?.avatarId ?? raw?.avatar_id ?? (typeof raw?.avatar === 'number' ? raw?.avatar : undefined) ?? 0);
+  // 头像相关：兼容顶层与嵌套 user/author 的多种字段
+  const rawAvatar =
+    raw?.avatarUrl ?? raw?.avatar ?? raw?.userAvatar ?? raw?.user_avatar ?? raw?.avatar_id ??
+    raw?.user?.avatarUrl ?? raw?.user?.avatar ?? raw?.user?.avatar_id ??
+    raw?.author?.avatarUrl ?? raw?.creator?.avatarUrl;
+  const parsedAvatarId = Number(
+    raw?.avatarId ?? raw?.avatar_id ?? (typeof raw?.avatar === 'number' ? raw?.avatar : undefined) ??
+    raw?.user?.avatarId ?? raw?.user?.avatar_id ??
+    raw?.author?.avatarId ?? raw?.creator?.avatarId ?? 0
+  );
   // 更稳健的 isPublic 解析：支持 boolean/string/number/visibility
   const isPublicRaw = raw?.isPublic ?? raw?.public ?? raw?.is_public ?? raw?.visibility;
   let isPublic = false;
@@ -61,6 +69,14 @@ function normalizeWish(raw: any): Wish {
     isPublic = String(raw.visibility).toLowerCase() === 'public';
   }
 
+  // 更宽松地识别 URL：支持 http/https、协议相对 // 以及以 / 开头的站内路径
+  const toAvatarUrl = (v: any): string | undefined => {
+    if (typeof v !== 'string') return undefined;
+    const s = String(v);
+    if (/^(https?:)?\/\//.test(s) || s.startsWith('/')) return s;
+    return undefined;
+  };
+
   return {
     id: Number(raw?.id ?? raw?.wishId ?? 0),
     content: String(raw?.content ?? raw?.wishContent ?? ''),
@@ -71,10 +87,11 @@ function normalizeWish(raw: any): Wish {
     createdAt: String(raw?.createdAt ?? raw?.created_at ?? raw?.create_time ?? new Date().toISOString()),
     nickname: String(
       raw?.nickname ?? raw?.nickName ?? raw?.userNickname ?? raw?.userNickName ?? raw?.user_name ??
-      raw?.authorNickname ?? raw?.creatorNickname ?? raw?.author?.nickname ?? raw?.creator?.nickname ?? '匿名'
+      raw?.authorNickname ?? raw?.creatorNickname ?? raw?.author?.nickname ?? raw?.creator?.nickname ??
+      raw?.user?.nickname ?? raw?.user?.nickName ?? '匿名'
     ),
     avatarId: Number.isFinite(parsedAvatarId) ? parsedAvatarId : 0,
-    avatarUrl: (typeof rawAvatar === 'string' && /^(https?:)?\/\//.test(rawAvatar)) ? String(rawAvatar) : undefined,
+    avatarUrl: toAvatarUrl(rawAvatar),
     isOwn: Boolean(raw?.isOwn ?? raw?.mine ?? raw?.own ?? false),
   };
 }
@@ -145,6 +162,8 @@ export const getPublicWishes = async (
 interface NewWishData {
   content: string;
   isPublic: boolean;
+  // 兼容部分后端使用 visibility: 'public'|'private'
+  visibility?: 'public' | 'private' | string;
   tags: string[];
 }
 
@@ -157,6 +176,7 @@ export const createWish = async (
   const newWishData: NewWishData = {
     content: content,
     isPublic: isPublic,
+    visibility: isPublic ? 'public' : 'private',
     tags: tags,
   };
   //调用api
