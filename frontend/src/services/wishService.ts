@@ -261,7 +261,92 @@ export const getWishInteractions = async (
   if (data?.wishInfo) {
     data.wishInfo = normalizeWish(data.wishInfo as any) as Wish;
   }
+  // 规范 comments 结构，兼容多种返回形态，避免前端显示“暂无评论”
+  try {
+    const raw: any = (data as any) || {};
+    let commentsSrc: any = raw.comments ?? raw.commentList ?? raw.comment ?? [];
+    // 提取列表
+    let rawList: any[] = [];
+    if (Array.isArray(commentsSrc)) {
+      rawList = commentsSrc;
+    } else if (commentsSrc && typeof commentsSrc === 'object') {
+      rawList = commentsSrc.list || commentsSrc.records || commentsSrc.items || commentsSrc.data || [];
+    }
+
+    const normalizeComment = (c: any): wishComment => ({
+      id: Number(c?.id ?? c?.commentId ?? 0),
+      userId: Number(c?.userId ?? c?.uid ?? 0),
+      userNickname: String(c?.userNickname ?? c?.nickname ?? c?.user_name ?? '匿名用户'),
+      userAvatarId: Number(c?.userAvatarId ?? c?.avatarId ?? c?.avatar_id ?? 0),
+      wishId: Number(c?.wishId ?? c?.wid ?? wishId),
+      likeCount: Number(c?.likeCount ?? c?.like_count ?? 0),
+      content: String(c?.content ?? c?.text ?? ''),
+      createdAt: String(c?.createdAt ?? c?.created_at ?? c?.create_time ?? new Date().toISOString()),
+      isOwn: Boolean(c?.isOwn ?? c?.mine ?? c?.own ?? false),
+    });
+
+    const list = rawList
+      .filter((c: any) => c && typeof c === 'object')
+      .map(normalizeComment);
+
+    const pageNum = Number(commentsSrc?.page ?? commentsSrc?.pageNum ?? commentsSrc?.currentPage ?? 1);
+    const pageSize = Number((commentsSrc?.pageSize ?? commentsSrc?.size ?? list.length) || 20);
+    const total = Number(commentsSrc?.total ?? commentsSrc?.totalCount ?? list.length);
+
+    (data as any).comments = {
+      list,
+      pagination: {
+        page: pageNum,
+        pageSize,
+        total,
+      },
+    } as CommentsInfo;
+  } catch (e) {
+    // 忽略规范化异常，保持原数据
+  }
   return data;
+};
+
+// 独立获取某条愿望的评论列表，避免从 interactions 里误读点赞数据
+export const getWishComments = async (
+  wishId: number,
+  page: number = 1,
+  pageSize: number = 50
+): Promise<CommentsInfo> => {
+  const res = await apiClient.get<ApiResponse<any>, ApiResponse<any>>(
+    `/wishes/${wishId}/comments`,
+    { params: { page, pageSize } }
+  );
+  const d: any = res.data || {};
+  let src: any = d.comments ?? d.data ?? d;
+  let rawList: any[] = [];
+  if (Array.isArray(src)) rawList = src;
+  else if (src && typeof src === 'object') rawList = src.list || src.records || src.items || src.data || [];
+
+  const normalizeComment = (c: any): wishComment => ({
+    id: Number(c?.id ?? c?.commentId ?? 0),
+    userId: Number(c?.userId ?? c?.uid ?? 0),
+    userNickname: String(c?.userNickname ?? c?.nickname ?? c?.user_name ?? '匿名用户'),
+    userAvatarId: Number(c?.userAvatarId ?? c?.avatarId ?? c?.avatar_id ?? 0),
+    wishId: Number(c?.wishId ?? c?.wid ?? wishId),
+    likeCount: Number(c?.likeCount ?? c?.like_count ?? 0),
+    content: String(c?.content ?? c?.text ?? ''),
+    createdAt: String(c?.createdAt ?? c?.created_at ?? c?.create_time ?? new Date().toISOString()),
+    isOwn: Boolean(c?.isOwn ?? c?.mine ?? c?.own ?? false),
+  });
+
+  const list = rawList.filter((c: any) => c && typeof c === 'object').map(normalizeComment);
+  const p = Number(src?.page ?? src?.pageNum ?? src?.currentPage ?? page);
+  const s = Number((src?.pageSize ?? src?.size ?? list.length) || pageSize);
+  const total = Number(src?.total ?? src?.totalCount ?? list.length);
+  return {
+    list,
+    pagination: {
+      page: p,
+      pageSize: s,
+      total,
+    }
+  };
 };
 
 //统一导出
@@ -275,4 +360,5 @@ export const services = {
   deleteWish,
   deleteComment,
   getWishInteractions,
+  getWishComments,
 };

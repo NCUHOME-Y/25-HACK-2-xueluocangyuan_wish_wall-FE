@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { services, type Wish } from '../../services/wishService';
 import BackButton from '@/components/common/BackButton.tsx';
-import ProfileButton from '@/components/common/ProfileButton.tsx';
+// 移除右上角个人心愿跳转按钮
 import { getAvatarUrl } from '@/utils/avatar';
 import '@/styles/Galaxy.css';
+import commentButton from '@/assets/images/commentButton.svg';
 
 export const Galaxy = () => {
   // 心愿列表与分页状态
@@ -13,6 +14,8 @@ export const Galaxy = () => {
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
+  const [commentsMap, setCommentsMap] = useState<Record<number, { list: Array<{id:number;userNickname:string;userAvatarId:number;content:string;createdAt:string}>; loading: boolean; error?: string }>>({});
 
   // 加载心愿列表（首次与翻页）
   useEffect(() => {
@@ -79,15 +82,72 @@ export const Galaxy = () => {
               <img src={getAvatarUrl(w.avatarId)} alt={w.nickname} className="wish-avatar" />
               <div className="wish-main">
                 <div className="wish-header">
-                  <span className="wish-nickname">{w.nickname}{w.isOwn && <span className="own-tag">(我)</span>}</span>
                   <span className="wish-time">{new Date(w.createdAt).toLocaleDateString()}</span>
                 </div>
                 <p className="wish-content">{w.content}</p>
                 <div className="wish-meta">
                   <span>点赞: {w.likeCount}</span>
-                  <span>评论: {w.commentCount}</span>
-                  <span>{w.isPublic ? '公开' : '私密'}</span>
+                  <button
+                    className="comment-button"
+                    onClick={async () => {
+                      if (openCommentsId === w.id) {
+                        setOpenCommentsId(null);
+                        return;
+                      }
+                      setOpenCommentsId(w.id);
+                      setCommentsMap(prev => ({
+                        ...prev,
+                        [w.id]: { list: prev[w.id]?.list || [], loading: true }
+                      }));
+                      try {
+                        const res = await services.getWishComments(w.id, 1, 50);
+                        const list = (res as any)?.list || [];
+                        const normalized = list.filter((c: any) => c && typeof c === 'object').map((c: any) => ({
+                          id: Number(c.id) || 0,
+                          userNickname: String(c.userNickname || '匿名用户'),
+                          userAvatarId: typeof (c as any).userAvatarId === 'number' ? (c as any).userAvatarId : 0,
+                          userAvatarUrl: typeof (c as any).userAvatar === 'string' ? (c as any).userAvatar :
+                            (typeof (c as any).userAvatarId === 'string' ? (c as any).userAvatarId :
+                              (typeof (c as any).avatar_id === 'string' ? (c as any).avatar_id : undefined)),
+                          content: String(c.content || ''),
+                          createdAt: c.createdAt || new Date().toISOString(),
+                        }));
+                        setCommentsMap(prev => ({ ...prev, [w.id]: { list: normalized, loading: false } }));
+                      } catch (e: any) {
+                        setCommentsMap(prev => ({ ...prev, [w.id]: { list: [], loading: false, error: e?.message || '加载失败' } }));
+                      }
+                    }}
+                  >
+                    <img src={commentButton} alt="评论" className="icon-image" />
+                    <span className="text">{openCommentsId === w.id ? '评论' : '评论'} {w.commentCount}</span>
+                  </button>
                 </div>
+                {openCommentsId === w.id && (
+                  <div className="galaxy-comments">
+                    {commentsMap[w.id]?.loading ? (
+                      <div className="galaxy-comments-status">加载评论中...</div>
+                    ) : (commentsMap[w.id]?.error ? (
+                      <div className="galaxy-comments-status error">{commentsMap[w.id]?.error}</div>
+                    ) : (
+                      (commentsMap[w.id]?.list?.length ?? 0) === 0 ? (
+                        <div className="galaxy-comments-status empty">暂无评论</div>
+                      ) : (
+                        commentsMap[w.id]!.list.map(c => (
+                          <div key={c.id} className="comment-item">
+                            <img src={(c as any).userAvatarUrl ? (c as any).userAvatarUrl : getAvatarUrl(c.userAvatarId)} alt="头像" className="avatar-small" />
+                            <div className="comment-body">
+                              <span className="comment-author">{c.userNickname}</span>
+                              <div className="comment-main">
+                                <p className="comment-text">{c.content}</p>
+                                <span className="comment-time">{new Date(c.createdAt).toLocaleString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )
+                    ))}
+                  </div>
+                )}
               </div>
             </li>
           ))}
@@ -112,7 +172,7 @@ export const Galaxy = () => {
       <div className="header">
         <BackButton />
         <h2 className="title">小雪心愿单</h2>
-        <ProfileButton />
+        <div style={{ width: 90 }} />
       </div>
       <div className="galaxy-body">
         {renderContent()}

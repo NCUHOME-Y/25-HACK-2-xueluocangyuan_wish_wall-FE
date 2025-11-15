@@ -7,7 +7,7 @@ import '@/styles/wishModal.css';
 import commentButton from '@/assets/images/commentButton.svg';
 import like from '@/assets/images/likeButton.svg';
 import dislike from '@/assets/images/dislikeButton.svg';
-import { addComment, getWishInteractions, likeWish } from '@/services/wishService';
+import { addComment, getWishInteractions, likeWish, deleteComment, getWishComments } from '@/services/wishService';
 import { type Wish } from '@/services/wishService';
 import Button from '@/components/common/Button.tsx';
 import { getAvatarUrl } from '@/utils/avatar';
@@ -18,8 +18,10 @@ type WishComment = {
   id: number;
   userNickname: string;
   userAvatarId: number;
+  userAvatarUrl?: string;
   content: string;
   createdAt: string;
+  isOwn: boolean;
 };
 
 interface DanmuFlowProps {
@@ -49,9 +51,11 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
   const [commentInput, setCommentInput] = useState('');
   const [isLiking, setIsLiking] = useState(false);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [deletingCommentId, setDeletingCommentId] = useState<number | null>(null);
 
   // 新增：控制评论区显隐状态
   const [showComments, setShowComments] = useState(false);
+  const commentsSectionRef = useRef<HTMLDivElement | null>(null);
 
   // 点击弹幕打开详情
   const handleDanmuClick = useCallback(async (wish: Wish) => {
@@ -62,7 +66,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
     abortControllerRef.current = controller;
 
     try {
-      // 加载评论列表
+      // 先拿点赞等交互状态
       const interactions = await getWishInteractions(wish.id);
 
       const enhancedWish: WishWithLiked = {
@@ -75,19 +79,24 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
 
       setModalWish(enhancedWish);
       setIsModalOpen(true);
-      setShowComments(false);// 隐藏评论区
 
-      const list = interactions?.comments?.list ?? [];
-      const commentsData: WishComment[] = list
+      // 使用独立评论接口，避免 interactions 返回的点赞列表干扰
+      const commentRes = await getWishComments(wish.id, 1, 50);
+      const commentsData: WishComment[] = (commentRes?.list ?? [])
         .filter((c: any) => c && typeof c === 'object')
         .map((c: any) => ({
           id: Number(c.id) || 0,
           userNickname: String(c.userNickname || '匿名用户'),
-          userAvatarId: Number(c.userAvatarId) || 0,
+          userAvatarId: typeof (c as any).userAvatarId === 'number' ? (c as any).userAvatarId : 0,
+          userAvatarUrl: typeof (c as any).userAvatar === 'string' ? (c as any).userAvatar :
+            (typeof (c as any).userAvatarId === 'string' ? (c as any).userAvatarId :
+              (typeof (c as any).avatar_id === 'string' ? (c as any).avatar_id : undefined)),
           content: String(c.content || ''),
           createdAt: c.createdAt || new Date().toISOString(),
+          isOwn: Boolean((c as any).isOwn || (c as any).mine || (c as any).own || false),
         }));
       setComments(commentsData);
+      setShowComments(commentsData.length > 0);
 
     } catch (err: any) {
       if (!isAbortError(err)) {
@@ -141,12 +150,13 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
 
   // 新增：处理评论按钮点击
   const handleToggleComments = useCallback(() => {
-    setShowComments(prev => !prev);
+    setShowComments(true);
   }, []);
 
   // 新增：评论区展开后自动聚焦输入框
   useEffect(() => {
     if (showComments) {
+      commentsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       document.getElementById('comment-input')?.focus();
     }
   }, [showComments]);
@@ -163,9 +173,13 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
         {
           id: (newComment as any).id,
           userNickname: (newComment as any).userNickname,
-          userAvatarId: (newComment as any).userAvatarId,
+          userAvatarId: typeof (newComment as any).userAvatarId === 'number' ? (newComment as any).userAvatarId : 0,
+          userAvatarUrl: typeof (newComment as any).userAvatar === 'string' ? (newComment as any).userAvatar :
+            (typeof (newComment as any).userAvatarId === 'string' ? (newComment as any).userAvatarId :
+              (typeof (newComment as any).avatar_id === 'string' ? (newComment as any).avatar_id : undefined)),
           content: (newComment as any).content,
           createdAt: (newComment as any).createdAt,
+          isOwn: Boolean((newComment as any).isOwn || true),
         } as WishComment,
         ...prev,
       ]);
@@ -178,7 +192,27 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
     } finally {
       setIsSubmittingComment(false);
     }
-  }, [modalWish, commentInput, isSubmittingComment, onDataChange]);
+  }, [modalWish, commentInput, isSubmittingComment, onDataChange, onWishUpdate]);
+
+  // 删除评论
+  const handleDeleteComment = useCallback(async (commentId: number) => {
+    if (!modalWish || deletingCommentId) return;
+    const target = comments.find(c => c.id === commentId);
+    if (!target || !target.isOwn) return;
+    setDeletingCommentId(commentId);
+    try {
+      await deleteComment(commentId);
+      setComments(prev => prev.filter(c => c.id !== commentId));
+      setModalWish(prev => prev ? { ...prev, commentCount: Math.max(0, prev.commentCount - 1) } : prev);
+      if (modalWish) {
+        onWishUpdate?.({ id: modalWish.id, commentCount: Math.max(0, modalWish.commentCount - 1) });
+      }
+    } catch (err: any) {
+      console.error('删除评论失败:', err?.msg || err?.message || err);
+    } finally {
+      setDeletingCommentId(null);
+    }
+  }, [comments, modalWish, deletingCommentId, onWishUpdate]);
 
   // 组件卸载时清理请求
   useEffect(() => {
@@ -264,7 +298,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
 
             {/* 修改：评论区整块条件渲染 */}
             {showComments && (
-              <div className="comments-section">
+              <div className="comments-section" ref={commentsSectionRef}>
                 <h4>评论区</h4>
 
                 {/* 发表评论 */}
@@ -295,14 +329,24 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
                   ) : (
                     comments.map(comment => (
                       <div key={comment.id} className="comment-item">
-                        <img src={getAvatarUrl(comment.userAvatarId)} alt="头像" className="avatar-small" />
-                        <div className="comment-main">
+                        <img src={(comment as any).userAvatarUrl ? (comment as any).userAvatarUrl : getAvatarUrl(comment.userAvatarId)} alt="头像" className="avatar-small" />
+                        <div className="comment-body">
                           <span className="comment-author">{comment.userNickname}</span>
-                          <p className="comment-text">{comment.content}</p>
-                          <span className="comment-time">
-                            {new Date(comment.createdAt).toLocaleString()}
-                          </span>
+                          <div className="comment-main">
+                            <p className="comment-text">{comment.content}</p>
+                            <span className="comment-time">
+                              {new Date(comment.createdAt).toLocaleString()}
+                            </span>
+                          </div>
                         </div>
+                        {comment.isOwn && (
+                          <Button
+                            text={deletingCommentId === comment.id ? '删除中...' : '删除'}
+                            onClick={() => handleDeleteComment(comment.id)}
+                            disabled={deletingCommentId === comment.id}
+                            className="delete-comment-button" 
+                          />
+                        )}
                       </div>
                     ))
                   )}

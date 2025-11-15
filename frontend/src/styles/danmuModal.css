@@ -78,6 +78,21 @@
     margin-left: 6px;
 }
 
+/* 评论按钮与点赞按钮统一尺寸与间距 */
+.wish-detail-modal .action-button.comment-button {
+    border-radius: 10px;
+    padding: 4px 6px;
+}
+
+.wish-detail-modal .action-button.comment-button .icon-image {
+    width: 20px;
+    height: 20px;
+}
+
+.wish-detail-modal .action-button.comment-button .text {
+    margin-left: 6px;
+}
+
 .wish-detail-modal .comments-section {
     background: rgba(187, 215, 242, 1);
     border-radius: 16px 16px 0px 0px;
@@ -109,13 +124,44 @@
 }
 
 .wish-detail-modal .send-button {
-    background: transparent;
-    border: 1px solid rgba(109, 144, 176, 1);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(109, 144, 176, 0.55);
     font-size: 1rem;
-    color: rgba(109, 144, 176, 1);
-    border-radius: 16px;
-    padding: 10px 14px;
+    font-weight: 600;
+    color: rgba(86, 124, 156, 1);
+    border-radius: 999px;
+    /* 胶囊形 */
+    padding: 8px 14px;
+    padding-left: 10px;
+    /* 右侧更宽，整体左移一点 */
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    text-align: center;
+}
+
+.wish-detail-modal .send-button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 1);
+    border-color: rgba(109, 144, 176, 0.8);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.wish-detail-modal .send-button:active:not(:disabled) {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) inset;
+}
+
+.wish-detail-modal .send-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.wish-detail-modal .send-button .icon-image {
+    width: 16px;
+    height: 16px;
 }
 
 .wish-detail-modal .action-button.like-button,
@@ -124,9 +170,96 @@
     border: none;
 }
 
-.wish-detail-modal .comment-item {
+.wish-detail-modal .comment-item,
+.galaxy-comments .comment-item {
     margin-top: 10px;
     margin-bottom: 10px;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+/* 评论主体容器：承载作者与气泡，拉满可用宽度 */
+.wish-detail-modal .comment-body,
+.galaxy-comments .comment-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+/* 评论内容容器与文本样式（移动端友好） */
+.wish-detail-modal .comment-main,
+.galaxy-comments .comment-main {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    border-radius: 12px;
+    padding: 10px 12px;
+    flex: 1;
+    min-width: 0;
+    /* 防止超出容器 */
+    margin-top: 4px;
+    /* 与作者名拉开一点距离 */
+}
+
+.wish-detail-modal .comment-author,
+.galaxy-comments .comment-author {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: rgba(26, 26, 26, 0.92);
+}
+
+.wish-detail-modal .comment-text,
+.galaxy-comments .comment-text {
+    margin-top: 2px;
+    font-size: 0.9rem;
+    color: rgba(26, 26, 26, 0.9);
+    line-height: 1.45;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+.wish-detail-modal .comment-time,
+.galaxy-comments .comment-time {
+    margin-top: 6px;
+    font-size: 0.75rem;
+    color: rgba(109, 144, 176, 1);
+}
+
+/* 删除评论按钮：轻量、强调危险操作，不破坏整体治愈风格 */
+.wish-detail-modal .delete-comment-button,
+.galaxy-comments .delete-comment-button {
+    margin-left: 55px;
+    margin-right: 8px;
+    background: rgba(106, 228, 216, 0.12);
+    color: rgb(93, 191, 233);
+    border: 1px solid rgba(98, 155, 241, 0.5);
+    border-radius: 12px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    display: flex;
+    align-items: center;
+    height: 24px;
+}
+
+.wish-detail-modal .delete-comment-button:hover:not(:disabled) {
+    background: rgba(93, 247, 247, 0.25);
+    color: rgb(101, 190, 196);
+    border-color: rgba(82, 220, 223, 0.8);
+}
+
+.wish-detail-modal .delete-comment-button:active:not(:disabled) {
+    background: rgba(72, 235, 230, 0.35);
+    color: rgb(102, 223, 245);
+}
+
+.wish-detail-modal .delete-comment-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .wish-detail-modal .comments-list {
@@ -172,5 +305,29 @@
 
     .wish-detail-modal .send-button {
         width: 100%;
+        padding: 12px 18px;
+        padding-left: 12px;
+        /* 右侧稍大，整体左移 */
+        /* 在小屏下稍微增高，便于点按 */
+        font-size: 1rem;
+    }
+
+    /* 移动端尺寸优化 */
+    .wish-detail-modal .avatar-small {
+        width: 32px;
+        height: 32px;
+    }
+
+    .wish-detail-modal .comment-author {
+        font-size: 0.9rem;
+    }
+
+    .wish-detail-modal .comment-text {
+        font-size: 0.875rem;
+        line-height: 1.45;
+    }
+
+    .wish-detail-modal .comment-time {
+        font-size: 0.7rem;
     }
 }
