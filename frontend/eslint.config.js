@@ -1,7 +1,7 @@
 import js from '@eslint/js';
 import globals from 'globals';
 import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
+// import reactRefresh from 'eslint-plugin-react-refresh'; // <-- 确保这行被删除
 import tseslint from 'typescript-eslint';
 
 // ESLint 9+ Flat Config
@@ -13,7 +13,7 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
   reactHooks.configs['recommended-latest'],
-  reactRefresh.configs.vite,
+  // reactRefresh.configs.vite, // <-- 确保这行被删除
 
   // 3) 项目级配置
   {

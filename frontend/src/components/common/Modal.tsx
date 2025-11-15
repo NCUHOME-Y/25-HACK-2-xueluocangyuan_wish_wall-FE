@@ -12,7 +12,6 @@ interface ModalProps {
     cancelText?: string;
     onCancel?: () => void;
     onConfirm?: () => void;
-    onClose?: () => void; // 新增：支持外层关闭
     children: React.ReactNode;
 }
 
@@ -22,7 +21,6 @@ const Modal = ({
   confirmText = '确定',
   onConfirm,
   onCancel,
-  onClose,
   showCancelButton,
   cancelText = '取消',
   children,
@@ -49,7 +47,7 @@ const Modal = ({
     const portalRoot = document.getElementById('modal-root') || document.body;
 
     return ReactDOM.createPortal(
-        <div className="modal-overlay" onClick={() => onClose?.()}>
+        <div className="modal-overlay">
             <div
                 className={`modal ${title ? 'has-title' : ''}`}
                 onClick={(e) => e.stopPropagation()}
@@ -57,13 +55,6 @@ const Modal = ({
             >
                 <div className="modal-header">
                     {title && <h1 className="modal-title">{title}</h1>}
-                    {onClose && (
-                        <button
-                            type="button"
-                            className="modal-close-button"
-                            onClick={onClose}
-                        >×</button>
-                    )}
                 </div>
                 <div className="modal-body">{children}</div>
                 <div className="modal-footer">

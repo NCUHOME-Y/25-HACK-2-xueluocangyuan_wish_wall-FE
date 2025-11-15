@@ -1,5 +1,5 @@
 body {
-    background-image: url("@/assets/images/background.jpg")
+    background-image: url("../assets/images/background.jpg")
 }
 
 .login-container {
@@ -52,6 +52,11 @@ body {
     padding: 0 10px;
 }
 
+.username-input-container input:focus,
+.password-input-container input:focus {
+    outline: none;
+}
+
 .username-input-container input::placeholder,
 .password-input-container input::placeholder {
     color: rgba(247, 251, 255, 1);
@@ -78,4 +83,12 @@ body {
     width: clamp(280px, 90vw, 314px);
     margin-top: 60px;
     height: clamp(42px, 5vw, 54px);
+    border: none;
+    cursor: pointer;
+}
+
+.error-message {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 1);
+    margin-bottom: 10px;
 }

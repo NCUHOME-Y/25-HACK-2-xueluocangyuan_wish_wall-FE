@@ -6,8 +6,7 @@ import '@/styles/wishModal.css';
 import commentButton from '@/assets/images/commentButton.svg';
 import dislike from '@/assets/images/dislikeButton.svg';
 import like from '@/assets/images/likeButton.svg'; 
-import { addComment, getWishInteractions } from '@/services/wishService';
-import { type Wish } from '@/services/wishService';
+import { addComment, getWishInteractions, likeWish, type wishComment, type Wish } from '@/services/wishService';
 import Button from '@/components/common/Button.tsx';
 import { getAvatarUrl } from '@/utils/avatar';
 
@@ -62,6 +61,9 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
       // 加载评论列表
       const interactions = await getWishInteractions(wish.id);
 
+      // 若在等待期间已被其他点击替换，直接忽略结果
+      if (abortControllerRef.current !== controller) return;
+
       const enhancedWish: WishWithLiked = {
         ...wish,
         isLiked: interactions?.likes?.currentUserLiked ?? false,
@@ -73,12 +75,12 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
 
       const list = interactions?.comments?.list ?? [];
       const commentsData: WishComment[] = list
-        .filter((c: any) => c && typeof c === 'object')
-        .map((c: any) => ({
-          id: Number(c.id) || 0,
-          userNickname: String(c.userNickname || '匿名用户'),
+        .filter((c: wishComment) => c && typeof c === 'object' && Number(c.id))
+        .map((c: wishComment) => ({
+          id: Number(c.id),
+          userNickname: c.userNickname || '匿名用户',
           userAvatarId: Number(c.userAvatarId) || 0,
-          content: String(c.content || ''),
+          content: c.content || '',
           createdAt: c.createdAt || new Date().toISOString(),
         }));
       setComments(commentsData);
@@ -109,18 +111,17 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
   // 点赞处理
   const handleLike = useCallback(async () => {
     if (!modalWish || isLiking || modalWish.isLiked) return;
-    
     setIsLiking(true);
+    const prevSnapshot = modalWish;
+    // 乐观更新
+    setModalWish(prev => prev ? { ...prev, isLiked: true, likeCount: prev.likeCount + 1 } : prev);
     try {
-      // 更新本地状态
-      setModalWish(prev => prev ? {
-        ...prev,
-        isLiked: true,
-        likeCount: prev.likeCount + 1,
-      } : null);
-      onDataChange(); // 通知父组件刷新
-    } catch (err) {
-      console.error('点赞失败:', err);
+      await likeWish(modalWish.id);
+      onDataChange();
+    } catch (err: any) {
+      console.error('点赞失败:', err?.msg || err?.message || err);
+      // 回滚
+      setModalWish(prevSnapshot);
     } finally {
       setIsLiking(false);
     }
@@ -145,17 +146,14 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
     setIsSubmittingComment(true);
     try {
       const newComment = await addComment(modalWish.id, commentInput.trim());
-      // 添加到列表头部，即时反馈
-      setComments(prev => [
-        {
-          id: (newComment as any).id,
-          userNickname: (newComment as any).userNickname,
-          userAvatarId: (newComment as any).userAvatarId,
-          content: (newComment as any).content,
-          createdAt: (newComment as any).createdAt,
-        } as WishComment,
-        ...prev,
-      ]);
+      const mapped: WishComment = {
+        id: newComment.id,
+        userNickname: newComment.userNickname,
+        userAvatarId: newComment.userAvatarId,
+        content: newComment.content,
+        createdAt: newComment.createdAt,
+      };
+      setComments(prev => [mapped, ...prev]);
       setCommentInput('');
       setModalWish(prev => prev ? { ...prev, commentCount: prev.commentCount + 1 } : null);
       onDataChange();
@@ -212,9 +210,15 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange }) 
         )}
       </div>
 
-      <Modal visible={isModalOpen} onClose={handleCloseModal}>
+      <Modal visible={isModalOpen}>
         {modalWish && (
           <div className="wish-detail-modal">
+            <Button
+              text="关闭"
+              className="close-modal-button"
+              onClick={handleCloseModal}
+              type="button"
+            />
             {/* 用户信息 */}
             <div className="user-info">
               <img src={getAvatarUrl(modalWish.avatarId)} alt="头像" className="avatar" />

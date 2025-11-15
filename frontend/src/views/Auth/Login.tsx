@@ -1,4 +1,3 @@
-
 import  React, { useState } from 'react';
 import { authService } from '@/services/authService';
 import { useNavigate, Link } from "react-router-dom";
@@ -9,7 +8,7 @@ import '@/styles/login.css'
 export const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [success, setSuccess]= useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -75,21 +74,6 @@ export const Login = () => {
       </div>
 
        <div className="login-button-container">
-        {loading && (
-          <img 
-            src="@/assets/images/background.jpg" 
-            alt="加载中" 
-            className="loading-image spin"
-          />
-        )}
-        
-        {success && (
-          <img 
-            src="@/assets/images/background.jpg" 
-            alt="加载成功" 
-            className="loading-image success"
-          />
-        )}
 
         {!loading && !success && (
           <Button 

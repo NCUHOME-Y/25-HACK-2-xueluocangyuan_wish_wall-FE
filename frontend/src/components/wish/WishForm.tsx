@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { services } from '../../services/wishService';
+import { services } from '@/services/wishService';
 import { useUserStore } from '@/store/userStore';
 import Button from '@/components/common/Button.tsx';
 import '@/styles/wishModal.css';
@@ -11,7 +11,7 @@ interface WishFormProps {
 }
 
 export function WishForm({ onSuccess, onCancel }: WishFormProps) {
-  const { user } = useUserStore(); // 获取真实用户数据
+  const user = useUserStore(s => s.user); // 精准订阅用户信息
   const [content, setContent] = useState<string>("");
   const [isPublic, setIsPublic] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
@@ -19,8 +19,8 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
 
   const togglePrivacy = () => setIsPublic(prev => !prev);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  // 统一的提交逻辑，供表单提交与按钮点击复用
+  const doSubmit = async () => {
     if (loading) return;
 
     const trimmed = content.trim();
@@ -37,15 +37,20 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
       setIsPublic(true);
       onSuccess();
     } catch (err: any) {
-      setError(err?.message || "发布心愿失败");
+      setError(err?.msg || err?.message || "发布心愿失败");
     } finally {
       setLoading(false);
     }
   };
+
+  const handleFormSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    void doSubmit();
+  };
   
   return (
     <div className="wish-modal">
-    <form onSubmit={handleSubmit} className="wish-form">
+    <form onSubmit={handleFormSubmit} className="wish-form">
       <div className="modal-header">
         {/* 只在用户存在时渲染用户信息 */}
         {user && (
@@ -65,7 +70,8 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="时遇小雪，请写下你此时的心愿："
-          className="wish-content-textarea"
+          className="wish-content-text-area"
+          disabled={loading}
         />
       </div>
 
@@ -75,7 +81,6 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
           type="button"
           className="privacy-button"
           disabled={loading}
-          text={isPublic ? '公开' : '私密'}
         />
         <span className="privacy-status">
           {isPublic ? '公开心愿' : '不公开心愿'}
@@ -96,7 +101,7 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
         />
         <Button
           text={loading ? '发布中...' : '发布心愿'}
-          onClick={(e) => { e.preventDefault(); handleSubmit(e as any); }}
+          onClick={() => { void doSubmit(); }}
           type="button"
           className="submit-button"
           disabled={loading || !content.trim()}

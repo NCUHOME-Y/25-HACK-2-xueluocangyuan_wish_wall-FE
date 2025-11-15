@@ -1,5 +1,5 @@
 body {
-    background-image: url("@/assets/images/background.jpg")
+    background-image: url("../assets/images/background.jpg")
 }
 
 .public-feed-page {
@@ -11,33 +11,45 @@ body {
     overflow: hidden;
 }
 
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 100%; 
+    padding: 0 20px; 
+    box-sizing: border-box;
+}
+
 .title {
     font-size: 3rem;
-    margin-top: 20px;
-    margin-bottom: clamp(30px, 5vh, 60px);
     font-family: 'title';
     color: rgba(254, 255, 245, 1);
-    flex-shrink: 0;
+    text-align: center; 
+}
+
+.header > :last-child {
+    position: absolute;
+    right: 20px; 
 }
 
 .danmu-flow {
     width: 100%;
     flex: 1;
     min-height: 300px;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: relative;
     overflow: hidden;
     margin: 0 auto;
 }
 
 .danmu-flow > * {
-  width: 90% !important; 
-  max-width: 1200px !important;
-  margin: 0 auto !important;
+  width: 90%; 
+  max-width: 1200px;
+  margin: 0 auto;
 }
-
 
 .action-buttons {
     display: flex;
@@ -53,7 +65,15 @@ body {
     height: clamp(40px, 5vh, 48px);
     background: linear-gradient(90deg, rgba(192, 218, 235, 1) 0%, rgba(132, 195, 232, 1) 100%);
     border-radius: clamp(6px, 0.5rem + 0.5vw, 12px);
-    color:  rgba(254, 255, 245, 1);
+    color: rgba(254, 255, 245, 1);
     font-size: 1.25rem;
     white-space: nowrap;
+    border: none;
+    padding: 10px;
+}
+
+.profile-button {
+    background: none;
+    border: none;
+    cursor: pointer;
 }

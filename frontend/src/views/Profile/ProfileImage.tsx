@@ -1,39 +1,39 @@
 import { useState } from 'react';
-import profileImageOne from "@/assets/images/头像1.svg";
-import profileImageTwo from "@/assets/images/头像2.svg";
-import profileImageThree from "@/assets/images/头像3.svg";
-import profileImageFour from "@/assets/images/头像4.svg";
-import profileImageFive from "@/assets/images/头像5.svg";
-import profileImageSix from "@/assets/images/头像6.svg";
+import { useNavigate } from 'react-router-dom';
 import BackButton from "@/components/common/BackButton";
-import styles from "@/styles/profileImage.module.css"
+import styles from "@/styles/profileImage.module.css";
 import Button from '@/components/common/Button';
+import { getAvatarUrl, allAvatarIds } from '@/utils/avatar';
+import { useUserStore } from '@/store/userStore';
+import { userService } from '@/services/userService';
 
-// 创建一个头像数据数组，包含 ID 和路径，方便管理和映射
-const profileImages = [
-    { id: '1', src: profileImageOne, alt: "头像1" },
-    { id: '2', src: profileImageTwo, alt: "头像2" },
-    { id: '3', src: profileImageThree, alt: "头像3" },
-    { id: '4', src: profileImageFour, alt: "头像4" },
-    { id: '5', src: profileImageFive, alt: "头像5" },
-    { id: '6', src: profileImageSix, alt: "头像6" },
-];
+const profileImages = allAvatarIds.map(id => ({ id, src: getAvatarUrl(id), alt: `头像${id}` }));
 
 function ProfileImage() {
-    // 使用状态来存储当前选中的头像ID，默认不选中（null）
-    const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
+    const navigate = useNavigate();
+    const user = useUserStore(state => state.user);
+    const setUser = useUserStore(state => state.setUser);
+    const [selectedImageId, setSelectedImageId] = useState<number | null>(user?.avatar_id ?? null);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    // 处理头像点击事件
-    const handleImageClick = (id: string) => {
-        // 如果点击的是当前已选中的头像，则取消选中；否则选中它
-        setSelectedImageId(id);
+    const handleImageClick = (id: number) => {
+        setSelectedImageId(prev => (prev === id ? null : id));
     };
 
-    // 处理确认按钮点击事件
-    const handleConfirm = () => {
-        if (selectedImageId) {
-            // 调用API处理更换头像
-            console.log(`用户选择了头像 ID: ${selectedImageId}，准备更换头像...`);
+    const handleConfirm = async () => {
+        if (!user || !selectedImageId || selectedImageId === user.avatar_id || saving) return;
+        setSaving(true);
+        setError(null);
+        try {
+            const updated = await userService.updateUserProfile({ avatar_id: selectedImageId });
+            setUser(updated);
+            // 保存成功后返回个人资料页
+            navigate('/profile');
+        } catch (e: any) {
+            setError(e?.msg || e?.message || '更新头像失败');
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -45,23 +45,26 @@ function ProfileImage() {
                 </div>
                 <h1 className={styles.title}>选择头像</h1>
                 <Button
-                    text="确认"
+                    text={saving ? '保存中...' : '确认'}
                     className={styles.confirmButton}
                     onClick={handleConfirm}
+                    disabled={saving || !selectedImageId || selectedImageId === (user?.avatar_id ?? null)}
                 />
             </div>
             <div className={styles.images}>
-                {profileImages.map((image) => (
-                    <img 
+                {profileImages.map(image => (
+                    <img
                         key={image.id}
-                        src={image.src} 
-                        alt={image.alt} 
-                        // 动态添加 styles.selectedImage 类名
-                        className={`${styles.image} ${selectedImageId === image.id ? styles.selectedImage : ''}`} 
-                        onClick={() => handleImageClick(image.id)} // 绑定点击事件
+                        src={image.src}
+                        alt={image.alt}
+                        className={`${styles.image} ${selectedImageId === image.id ? styles.selectedImage : ''}`}
+                        onClick={() => handleImageClick(image.id)}
                     />
                 ))}
             </div>
+            {error && (
+                <div style={{ color: '#ffdddd', textAlign: 'center', marginTop: 12 }}>{error}</div>
+            )}
         </div>
     );
 };

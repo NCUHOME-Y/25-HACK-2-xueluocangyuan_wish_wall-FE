@@ -6,6 +6,7 @@ import Modal from "@/components/common/Modal.tsx";
 import { WishForm } from "@/components/wish/WishForm";
 import { getPublicWishes, type Wish } from "@/services/wishService";
 import "@/styles/PublicFeed.css";
+import ProfileButton from "@/components/common/ProfileButton";
 
 function PublicFeed() {
   const navigate = useNavigate();
@@ -44,7 +45,10 @@ function PublicFeed() {
 
   return (
     <div className="public-feed-page">
+      <div className="header">
       <div className="title">雪落心愿集</div>
+      <ProfileButton />
+      </div>
       <div className="danmu-flow">
         <DanmuFlow 
           wishes={wishes} 
@@ -56,13 +60,14 @@ function PublicFeed() {
         <Button text="发布小雪心愿" onClick={handleOpenModal} className="publish-wish-button" />
         <Button text="查看心愿清单" onClick={CheckWishes} className="check-wish-button" />
       </div>
-      <Modal
-        visible={visible}
-        onClose={handleCloseModal} 
-        children={
-          <WishForm onSuccess={handleWishPostSuccess} onCancel={handleCloseModal} />
-        }
-      />
+     
+ <Modal
+  visible={visible}
+  children={
+    <WishForm onSuccess={handleWishPostSuccess} onCancel={handleCloseModal} />
+  }
+/>
+
     </div>
   );
 }

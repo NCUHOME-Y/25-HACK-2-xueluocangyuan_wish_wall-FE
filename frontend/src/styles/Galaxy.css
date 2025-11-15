@@ -1,23 +1,46 @@
 body {
-    background-image: url("@/assets/images/background.jpg")
+    background-image: url("../assets/images/background.jpg")
 }
 
 .wish-list-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
     height: 100vh;
 }
 
 .title {
     font-size: 3rem;
-    margin-bottom: clamp(30px, 90vh, 60px);
     font-family: 'title';
     color: rgba(254, 255, 245, 1);
+    text-align: center;
+    margin: 0; /* 由 header 控制整体间距 */
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    margin-top: 40px;
+    justify-content: space-between; /* 保持左右按钮分散 */
+    align-items: center;
+}
+
+/* 仅在 header 中的标题实现真正视口水平居中，不受左右按钮宽度影响 */
+.header .title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    pointer-events: none; /* 避免遮挡按钮点击 */
 }
 
 .wish-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.wish-item {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -33,4 +56,33 @@ body {
     background: rgba(240, 251, 252, 0.8);
     border-radius: clamp(8px, 2vw, 24px);
     padding: 10px;
+}
+
+.galaxy-body {
+    display: flex;
+    flex-direction: column;
+    margin-top: 40px;
+    margin-left: 40px;
+}
+
+.error-message {
+    font-size: 2rem;
+    color: rgba(255, 255, 255, 1);
+    text-align: center;
+}
+
+.retry-button {
+    font-size: 1.5rem;
+    background: rgba(132, 195, 232, 1);
+    color: rgba(255, 255, 255, 1);
+    border-radius: 10px;
+    margin-left: 10px;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.galaxy-status.empty {
+    font-size: 2rem;
+    color: rgba(255, 255, 255, 1);
 }

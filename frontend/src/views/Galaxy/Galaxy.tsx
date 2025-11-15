@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { services, type Wish } from '../../services/wishService';
+import { services, type Wish } from '@/services/wishService';
 import BackButton from '@/components/common/BackButton.tsx';
 import ProfileButton from '@/components/common/ProfileButton.tsx';
 import { getAvatarUrl } from '@/utils/avatar';
@@ -27,9 +27,13 @@ export const Galaxy = () => {
         setHasMore(res.pagination.hasMore);
       } catch (err: any) {
         if (!mounted) return;
-        setError(err?.message || '加载心愿失败');
+        setError(err?.msg || err?.message || '加载心愿失败');
       } finally {
-        mounted && setLoading(false);
+        if (mounted) {
+          setLoading(false);
+          // 若是加载更多场景，等请求结束后再结束 loadingMore
+          setLoadingMore(false);
+        }
       }
     };
     loadWishes();
@@ -48,19 +52,16 @@ export const Galaxy = () => {
   // 加载更多
   const handleLoadMore = () => {
     if (!hasMore || loadingMore) return;
+    setError(null);
     setLoadingMore(true);
-    // 使用 setTimeout 模拟微小延迟，避免与主 loading 状态冲突
-    setTimeout(() => {
-      setPage(prev => prev + 1);
-      setLoadingMore(false);
-    }, 0);
+    setPage(prev => prev + 1);
   };
 
   const renderContent = () => {
     if (loading && page === 1) {
       return <div className="galaxy-status">正在加载心愿...</div>;
     }
-    if (error) {
+    if (error && page === 1) {
       return (
         <div className="galaxy-status error">
           <span>{error}</span>
@@ -101,6 +102,12 @@ export const Galaxy = () => {
             >{loadingMore ? '加载中...' : '加载更多'}</button>
           ) : (
             <span className="no-more">已到底部</span>
+          )}
+          {/* 加载更多失败时给予轻量提示，不影响已加载内容 */}
+          {error && page > 1 && (
+            <span className="load-more-error" style={{ marginLeft: 12 }}>
+              加载更多失败，可重试
+            </span>
           )}
         </div>
       </>
