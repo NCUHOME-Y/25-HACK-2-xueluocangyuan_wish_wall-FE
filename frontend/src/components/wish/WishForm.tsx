@@ -75,7 +75,6 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
           type="button"
           className="privacy-button"
           disabled={loading}
-          text={isPublic ? '公开' : '私密'}
         />
         <span className="privacy-status">
           {isPublic ? '公开心愿' : '不公开心愿'}

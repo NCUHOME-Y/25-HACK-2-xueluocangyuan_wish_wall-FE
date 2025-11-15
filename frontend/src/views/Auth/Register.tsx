@@ -11,7 +11,6 @@ export const Register = () => {
   const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
  
@@ -36,7 +35,6 @@ export const Register = () => {
         setUser(user);
         setPassword(''); // 清理敏感数据
         navigate('/');   // 注册即登录
-        setSuccess(true);
       } else {
         setError(res.msg || '注册失败');
       }
@@ -58,7 +56,7 @@ export const Register = () => {
                     value={nickname}
                     placeholder="请输入昵称"
                     onChange={(e) => setNickname(e.target.value)}
-                    disabled={loading || success}
+                    disabled={loading}
                 />
             </div>
             <div className="username">
@@ -68,7 +66,7 @@ export const Register = () => {
                     value={username}
                     placeholder="请输入账号/学号"
                     onChange={(e) => setUsername(e.target.value)}
-                    disabled={loading || success}
+                    disabled={loading}
                 />
             </div>
             <div className="password">
@@ -78,20 +76,13 @@ export const Register = () => {
                     value={password}
                     placeholder="请输入密码"
                     onChange={(e) => setPassword(e.target.value)}
-                    disabled={loading || success}
+                    disabled={loading}
                 />
             </div>
             </div>
             
             <div className="register-button-container">
-              {loading && (
-                <img src="@/assets/images/background.jpg"
-                     alt="加载中..."
-                     className="loading-img-spin"
-                />
-              )}
-
-              {!loading && !success && (
+              {!loading && (
                 <Button 
                     onClick={handleSubmit} 
                     text="注册"
