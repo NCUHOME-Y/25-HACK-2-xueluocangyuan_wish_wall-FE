@@ -8,6 +8,7 @@ on:
 env:
   DIST_DIR: frontend/dist
   BUCKET_NAME: 25-hack-2-fe
+  VITE_API_BASE_URL: https://snowkeptwishes.ncuos.com/api
 
 jobs:
   build:
