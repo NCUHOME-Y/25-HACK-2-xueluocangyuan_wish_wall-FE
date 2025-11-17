@@ -12,7 +12,7 @@ const API_BASE_URL: string | undefined = import.meta.env.VITE_API_BASE_URL;
 // 创建 axios 实例
 const apiClient: AxiosInstance = axios.create({
     baseURL: API_BASE_URL,
-    timeout: 10000, // 10 秒超时
+    timeout: 10000, // 5 秒超时
     headers: {
         "Content-Type": "application/json",
     },
@@ -20,7 +20,8 @@ const apiClient: AxiosInstance = axios.create({
 // 定义统一业务响应包装体
 interface ApiEnvelope<T> {
     code: number;
-    msg: string;
+    msg?: string;      // 设为可选
+    message?: string;
     data: T;
 }
 
@@ -50,12 +51,15 @@ let redirecting = false;
 apiClient.interceptors.response.use(
     (response: AxiosResponse): any => {
         const res = response.data;
+        console.log('API Response:', res);
         // 统一处理业务错误
         if (res.code !== 200) {
             // 拒绝结构化业务错误，便于调用方分支处理
+            const errorMessage = res.data?.error || res.message || res.msg || "业务错误";
+            console.log(errorMessage);
             return Promise.reject({
                 code: res.code,
-                msg: res.msg || "业务错误",
+                msg: errorMessage,
                 data: res.data,
                 isBusinessError: true,
             });
@@ -64,11 +68,11 @@ apiClient.interceptors.response.use(
         return res;
     },
     (error) => {
-        // 统一处理 HTTP 错误
+        // 统一处理 HTTP 错误里的业务错误
         if (error.response) {
             const status = error.response.status as number;
             const body = error.response.data as Partial<ApiEnvelope<any>> | undefined;
-
+            const errorMessage = body?.data.error;
             if (status === 401 && !redirecting) {
                 redirecting = true;
                 try { localStorage.removeItem("token"); } catch { }
@@ -80,7 +84,7 @@ apiClient.interceptors.response.use(
             return Promise.reject({
                 httpStatus: status,
                 code: body?.code,
-                msg: body?.msg || '请求失败',
+                msg: errorMessage || '请求失败',
                 data: body?.data,
                 isHttpError: true,
             });
@@ -89,7 +93,7 @@ apiClient.interceptors.response.use(
         // 网络错误
         return Promise.reject({
             code: -1,
-            msg: error?.message || '网络错误',
+            msg: '网络错误',
             data: null,
             isNetworkError: true,
         });

@@ -35,11 +35,10 @@ export const Register = () => {
         setUser(user);
         setPassword(''); // 清理敏感数据
         navigate('/');   // 注册即登录
-      } else {
-        setError(res.msg || '注册失败');
-      }
+      } 
     } catch (err: any) {
-      setError(err?.message || '网络错误');
+      console.log("Register:", err);
+      setError(err?.msg|| '网络错误');
     } finally {
       setLoading(false);
     }

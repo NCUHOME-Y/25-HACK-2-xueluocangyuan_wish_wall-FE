@@ -38,13 +38,14 @@ interface WishListResponse {
 interface ApiResponse<T> {
   code: number;
   msg: string;
+  message?: string;
   data: T;
 }
 
 //获取个人许愿列表
-// 统一规范化后端字段，兼容 snake_case / 变动字段名
+// 统一规范化后端字段
 function normalizeWish(raw: any): Wish {
-  // 头像相关：兼容顶层与嵌套 user/author 的多种字段
+  // 头像,穷举法
   const rawAvatar =
     raw?.avatarUrl ?? raw?.avatar ?? raw?.userAvatar ?? raw?.user_avatar ?? raw?.avatar_id ??
     raw?.user?.avatarUrl ?? raw?.user?.avatar ?? raw?.user?.avatar_id ??
@@ -54,7 +55,7 @@ function normalizeWish(raw: any): Wish {
     raw?.user?.avatarId ?? raw?.user?.avatar_id ??
     raw?.author?.avatarId ?? raw?.creator?.avatarId ?? 0
   );
-  // 更稳健的 isPublic 解析：支持 boolean/string/number/visibility
+  // 更稳健的 isPublic 解析，依旧穷举法
   const isPublicRaw = raw?.isPublic ?? raw?.public ?? raw?.is_public ?? raw?.visibility;
   let isPublic = false;
   if (typeof isPublicRaw === 'boolean') {
@@ -162,8 +163,6 @@ export const getPublicWishes = async (
 interface NewWishData {
   content: string;
   isPublic: boolean;
-  // 兼容部分后端使用 visibility: 'public'|'private'
-  visibility?: 'public' | 'private' | string;
   tags: string[];
 }
 
@@ -176,7 +175,6 @@ export const createWish = async (
   const newWishData: NewWishData = {
     content: content,
     isPublic: isPublic,
-    visibility: isPublic ? 'public' : 'private',
     tags: tags,
   };
   //调用api

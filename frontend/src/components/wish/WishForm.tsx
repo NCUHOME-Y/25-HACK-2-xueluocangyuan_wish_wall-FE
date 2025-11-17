@@ -37,7 +37,7 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
       setIsPublic(true);
       onSuccess();
     } catch (err: any) {
-      setError(err?.message || "发布心愿失败");
+      setError(err?.message||err?.msg || "发布心愿失败");
     } finally {
       setLoading(false);
     }

@@ -30,8 +30,6 @@ export const Login = () => {
         setUser(user);
         setPassword(''); // 清理敏感数据
         navigate('/');   // 登录后跳转
-      } else {
-        setError(res.msg || '登录失败');
       }
     } catch (err: any) {
       setError(err?.msg || err?.message || '网络错误');

@@ -22,6 +22,7 @@ interface ApiResponse<T> {
     data: T;
     code: number;
     msg: string;
+    message?: string;
 }
 //api函数
 //用户登录
