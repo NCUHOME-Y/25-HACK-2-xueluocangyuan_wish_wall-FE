@@ -23,6 +23,21 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
     e.preventDefault();
     if (loading) return;
 
+    // Umami 事件：发布心愿（类型安全写法）
+    const w = window as Window & { umami?: { track: (event: string) => void } };
+    if (w.umami) {
+      w.umami.track("发布心愿");
+    } else {
+      window.addEventListener(
+        "umami:ready",
+        () => {
+          const ww = window as Window & { umami?: { track: (event: string) => void } };
+          ww.umami?.track("发布心愿");
+        },
+        { once: true }
+      );
+    }
+
     const trimmed = content.trim();
     if (!trimmed) {
       setError("请输入心愿内容");
@@ -36,52 +51,60 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
       setContent("");
       setIsPublic(true);
       onSuccess();
-    } catch (err: any) {
-      setError(err?.message || "发布心愿失败");
+    } catch (err: unknown) {
+      let message = "发布心愿失败";
+      if (typeof err === 'object' && err !== null) {
+        if ('msg' in err && typeof (err as { msg?: unknown }).msg === 'string') {
+          message = (err as { msg?: string }).msg as string;
+        } else if (err instanceof Error && typeof err.message === 'string') {
+          message = err.message;
+        }
+      }
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
-  
+
   return (
     <div className="wish-modal">
-    <form onSubmit={handleSubmit} className="wish-form">
-      <div className="modal-header">
-        {/* 只在用户存在时渲染用户信息 */}
-        {user && (
-          <div className="profile-information">
-            <img
-              src={getAvatarUrl(user.avatar_id)}
-              alt="头像"
-              className="profile-image"
-            />
-            <span className="profile-nickname">{user.nickname}</span>
-          </div>
-        )}
-      </div>
+      <form onSubmit={(e) => { void handleSubmit(e); }} className="wish-form">
+        <div className="modal-header">
+          {/* 只在用户存在时渲染用户信息 */}
+          {user && (
+            <div className="profile-information">
+              <img
+                src={getAvatarUrl(user.avatar_id)}
+                alt="头像"
+                className="profile-image"
+              />
+              <span className="profile-nickname">{user.nickname}</span>
+            </div>
+          )}
+        </div>
 
-      <div className="form-group">
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="时遇小雪，请写下你此时的心愿："
-          className="wish-content-textarea"
-        />
-      </div>
+        <div className="form-group">
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="时遇小雪，请写下你此时的心愿："
+            className="wish-content-textarea"
+          />
+        </div>
 
-      <div className="privacy-button-group">
-        <Button
-          onClick={togglePrivacy}
-          type="button"
-          className="privacy-button"
-          disabled={loading}
-        />
-        <span className="privacy-status">
-          {isPublic ? '公开心愿' : '不公开心愿'}
-        </span>
-      </div>
+        <div className="privacy-button-group">
+          <Button
+            onClick={togglePrivacy}
+            type="button"
+            className="privacy-button"
+            disabled={loading}
+          />
+          <span className="privacy-status">
+            {isPublic ? '公开心愿' : '不公开心愿'}
+          </span>
+        </div>
 
-      {error && <p className="error-message">{error}</p>}
+        {error && <p className="error-message">{error}</p>}
 
       </form>
 
@@ -95,7 +118,7 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
         />
         <Button
           text={loading ? '发布中...' : '发布心愿'}
-          onClick={(e) => { e.preventDefault(); handleSubmit(e as any); }}
+          onClick={(e) => { e.preventDefault(); void handleSubmit(e as unknown as FormEvent); }}
           type="button"
           className="submit-button"
           disabled={loading || !content.trim()}
