@@ -51,16 +51,8 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
       setContent("");
       setIsPublic(true);
       onSuccess();
-    } catch (err: unknown) {
-      let message = "发布心愿失败";
-      if (typeof err === 'object' && err !== null) {
-        if ('msg' in err && typeof (err as { msg?: unknown }).msg === 'string') {
-          message = (err as { msg?: string }).msg as string;
-        } else if (err instanceof Error && typeof err.message === 'string') {
-          message = err.message;
-        }
-      }
-      setError(message);
+    } catch (err: any) {
+      setError(err?.message||err?.msg || "发布心愿失败");
     } finally {
       setLoading(false);
     }

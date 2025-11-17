@@ -11,6 +11,7 @@ interface User {
 interface ApiResponse<T> {
   code: number;
   msg: string;
+  message?: string;
   data: T;
 }
 // 定义 'PUT /api/user/me' 接口的 "请求体" 类型

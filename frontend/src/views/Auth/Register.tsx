@@ -35,20 +35,11 @@ export const Register = () => {
         setToken(token);
         setUser(user);
         setPassword(''); // 清理敏感数据
-        void navigate('/');   // 注册即登录
-      } else {
-        setError(res.msg || '注册失败');
-      }
-    } catch (err: unknown) {
-      let message = '网络错误';
-      if (typeof err === 'object' && err !== null) {
-        if ('msg' in err && typeof (err as { msg?: unknown }).msg === 'string') {
-          message = (err as { msg?: string }).msg as string;
-        } else if (err instanceof Error && typeof err.message === 'string') {
-          message = err.message;
-        }
-      }
-      setError(message);
+        navigate('/');   // 注册即登录
+      } 
+    } catch (err: any) {
+      console.log("Register:", err);
+      setError(err?.msg|| '网络错误');
     } finally {
       setLoading(false);
     }

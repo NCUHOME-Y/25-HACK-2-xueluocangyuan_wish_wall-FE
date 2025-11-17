@@ -295,7 +295,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
         {loading ? (
           <div style={{ textAlign: 'center', padding: '20px' }}>加载中...</div>
         ) : wishes.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '20px' }}>暂无数据</div>
+          <div style={{ textAlign: 'center', padding: '20px' }}>获取数据失败</div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {danmuRows}

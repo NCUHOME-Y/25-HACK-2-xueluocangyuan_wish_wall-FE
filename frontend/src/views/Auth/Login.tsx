@@ -30,9 +30,7 @@ export const Login = () => {
         setToken(token);
         setUser(user);
         setPassword(''); // 清理敏感数据
-        void navigate('/');   // 登录后跳转
-      } else {
-        setError(res.msg || '登录失败');
+        navigate('/');   // 登录后跳转
       }
     } catch (err: unknown) {
       let message = '网络错误';
