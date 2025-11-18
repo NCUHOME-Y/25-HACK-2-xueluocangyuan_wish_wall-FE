@@ -84,17 +84,17 @@ export function WishForm({ onSuccess, onCancel }: WishFormProps) {
           />
         </div>
 
-        <div className="privacy-button-group">
-          <Button
-            onClick={togglePrivacy}
-            type="button"
-            className="privacy-button"
-            disabled={loading}
-          />
-          <span className="privacy-status">
-            {isPublic ? '公开心愿' : '不公开心愿'}
-          </span>
-        </div>
+      <div className="privacy-button-group">
+        <Button
+          onClick={togglePrivacy}
+          type="button"
+          className={`privacy-button ${isPublic ? '' : 'private'}`}
+          disabled={loading}
+        />
+        <span className="privacy-status">
+          不公开心愿
+        </span>
+      </div>
 
         {error && <p className="error-message">{error}</p>}
 

@@ -1,3 +1,10 @@
+@font-face {
+    font-family: 'title';
+    src: url('../assets/images/font/titleFont.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 body {
     background-image: url("../assets/images/background.jpg")
 }
@@ -12,7 +19,7 @@ body {
 
 .register-title {
     font-size: 3rem;
-    margin-bottom: clamp(30px, 5vh, 60px);
+    margin-bottom: 8vh;
     font-family: 'title';
     color: rgba(254, 255, 245, 1);
 }
@@ -35,8 +42,8 @@ body {
         rgba(207, 227, 255, 0.7) 0%,
         rgba(232, 249, 252, 0.7) 100%);
     font-size: 1.5rem;
-    width: clamp(280px, 90vw, 354px);
-    height: clamp(42px, 5vw, 54px);
+    width: clamp(280px, 70vw, 314px);
+    height: clamp(42px, 6vh, 54px);
     padding: 0 10px;
 }
 
@@ -53,6 +60,7 @@ body {
 .password input {
     background: transparent;
     border: none;
+    box-shadow: none;
     font-size: 1.25rem;
     margin-left: 10px;
     width: 100%;
@@ -80,6 +88,7 @@ body {
     width: clamp(280px, 90vw, 314px);
     margin-top: 60px;
     height: clamp(42px, 5vw, 54px);
+    border: none;
 }
 
 .register-notice {
