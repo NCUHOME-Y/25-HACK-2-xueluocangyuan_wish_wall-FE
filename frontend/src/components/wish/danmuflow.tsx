@@ -265,7 +265,7 @@ const DanmuFlow: React.FC<DanmuFlowProps> = ({ wishes, loading, onDataChange, on
   }, []);
 
   // 弹幕渲染
-  const danmuRows = wishes.slice(0, 15).map((wish) => (
+  const danmuRows = wishes.map((wish) => (
     <div
       key={wish.id}
       className="danmu-row"
