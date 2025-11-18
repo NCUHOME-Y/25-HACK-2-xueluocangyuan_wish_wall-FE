@@ -143,7 +143,7 @@ export const getPublicWishes = async (
   const d: any = res.data || {};
   const rawList = extractWishArray(d);
   const wishesAll = rawList.filter((w: any) => w && typeof w === 'object').map(normalizeWish);
-  // 保险起见，前端再过滤一次仅公开心愿
+  // 前端再过滤一次仅公开心愿
   const wishes = wishesAll.filter((w: Wish) => w.isPublic === true);
   const p = Number(d.page ?? d.pageNum ?? d.currentPage ?? page);
   const s = Number(d.pageSize ?? d.size ?? pageSize);
