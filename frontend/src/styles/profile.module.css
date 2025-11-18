@@ -10,7 +10,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     min-height: 100vh;
     position: relative;
     flex-grow: 1;
@@ -21,14 +21,15 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 8vh;
+    margin-bottom: 10px;
 }
 
 .title {
     font-size: 2.25rem;
     font-family: "title";
-    margin-top: 40px;
+    margin-top: 5vh;
+    margin-left: 8vw;
     margin-bottom: 20px;
     color: rgba(254, 255, 245, 1);
 }
@@ -37,9 +38,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 10px;
+    margin-top: 8vh;
     background-color: rgba(255, 255, 255, 0.6);
     border-radius: 16px;
+}
+
+.nick-name input:focus {
+    outline: none;
 }
 
 .label {
@@ -51,6 +56,9 @@
 .nick-name input {
     background: transparent;
     border: none;
+    font-size: 1.25rem;
+    width: clamp(24px, 40vw, 243px);
+    height: 5vh;
 }
 
 .profile-image img {
@@ -60,7 +68,7 @@
 }
 
 .change-image {
-    margin-top: 69px;
+    margin-top: 60px;
     color: rgba(114, 144, 171, 1);
     font-size: 1.25rem;
     cursor: pointer;
@@ -72,13 +80,13 @@
 
 .back-button-container {
     position: absolute;
-    top: 50px;
+    top: 2vh;
     left: 20px;
     z-index: 100;
 }
 
 .confirm-button {
-    margin-top: 30px;
+    margin-top: 8vh;
     font-size: 1.25rem;
     color: rgba(85, 108, 128, 1);
     background: rgba(255, 255, 255, 0.6);
@@ -86,9 +94,13 @@
     cursor: pointer;
     width: 230px;
     padding: 10px 15px;
+    border: none;
 }
 
 .profile-image-one {
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     margin-bottom: -50px;
+    object-fit: cover;
 }
