@@ -52,7 +52,7 @@ apiClient.interceptors.response.use(
     (response: AxiosResponse): any => {
         const res = response.data;
         console.log('API Response:', res);
-        // 统一处理业务错误
+        // 统一处理业务错误，后面发现后端用状态码区分业务错误，暂时保留这段逻辑
         if (res.code !== 200) {
             // 拒绝结构化业务错误，便于调用方分支处理
             const errorMessage = res.data?.error || res.message || res.msg || "业务错误";
