@@ -10,19 +10,26 @@ body {
 
 .title {
     font-size: 2.25rem;
-    margin-top: 20px;
+    margin-top: 5vh;
     font-family: 'title';
     color: rgba(254, 255, 245, 1);
-    margin: 0 auto;
+    width: 100%;
+    display: block;
     text-align: center;
 }
 
 .header {
     display: flex;
     flex-direction: row;
-    margin-top: 20px;
+    margin-top: 5vh;
     justify-content: space-between;
     align-items: center;
+}
+
+.back-button {
+    top: 0;
+    left: 0;
+    position: absolute;
 }
 
 .galaxy-comments {
@@ -238,7 +245,8 @@ body {
 }
 
 .galaxy-status.empty {
-    font-size: 2rem;
+    font-size: 1.5rem;
+    margin-top: 3vh;
     color: rgba(255, 255, 255, 1);
 }
 
